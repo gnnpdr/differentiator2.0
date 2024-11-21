@@ -1,0 +1,44 @@
+CC = g++
+
+CFLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Weffc++ -Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
+
+HOME = $(shell cd)
+CFLAGS += -I $(HOME)
+
+ERRDIR = errors
+OBJDIR  = obj
+DRAWDIR = draw
+STRUCTDIR = structure
+INTERACTIONSDIR = interactions
+
+TARGET = differentiator
+
+SOURCES = main.cpp
+DRAW = draw/draw_tree.cpp 
+STRUCT = structure/tree_structure.cpp 
+INTERACTIONS = interactions/interactions.cpp 
+
+OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
+DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
+STRUCTOBJ = $(STRUCT:$(STRUCTDIR)/%.cpp = $(OBJDIR)/%.o)
+INTERACTIONSOBJ = $(INTERACTIONS:$(INTERACTIONSDIR)/%.cpp = $(OBJDIR)/%.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS) $(STRUCTOBJ) $(DRAWOBJ) $(INTERACTIONSOBJ)
+	$(CC) $^ -o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : %.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(STRUCTDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(INTERACTIONSDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+ 
+clean:
+	del -rf $(TARGET) $(OBJDIR)/*.o
