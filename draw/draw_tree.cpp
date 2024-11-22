@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "C:\Users\User\Desktop\differentiator2.0\draw\draw_tree.h"
+#include "draw_tree.h"
 
 static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt);
 

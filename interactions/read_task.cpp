@@ -1,95 +1,11 @@
 #include <stdio.h>
 
-#include "C:\Users\User\Desktop\differentiator2.0\interactions\interactions.h"
+#include "read_task.h"
 
-static Errors count_file_size (const char *const name, size_t* size);
 static char* arithm_get_str (char* open, char** start_text, char* str);
 static int find_var(char* str, bool* is_var);
 static int find_op(char* str);
 
-Errors input_ctor (Input *const base_text)
-{
-    assert(base_text);
-
-    char* name = (char*)calloc(MAX_STR_LEN, sizeof(char));
-    ALLOCATION_CHECK(name)
-
-    char* text = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
-    ALLOCATION_CHECK(text)
-
-    base_text->name = name;
-    base_text->text = text;
-
-    return ALL_RIGHT;
-}
-
-Errors get_database_name(Input *const base_text, char **const argv)
-{
-    assert(base_text);
-    assert(argv);
-
-    char* name = base_text->name;
-
-    strncpy(name, argv[1], strlen(argv[1]) + 1);
-    if(name == nullptr)
-        return CPY_ERROR;
-
-    base_text->name = name;
-
-    return ALL_RIGHT;
-}
-
-Errors get_database_text (Input *const base_text)
-{
-    assert(base_text);
-
-    Errors error = ALL_RIGHT;
-
-    char* base_file_name = base_text->name;
-    FILE* input_file;
-
-    input_file = fopen(base_file_name, "rb");
-    FILE_CHECK(input_file)
-
-    size_t size = 0;
-
-    error = count_file_size(base_text->name, &size);
-    if(error != ALL_RIGHT)
-        return STAT_ERROR;
-
-    char* text = base_text->text;
-
-    size_t read_result = fread(text, sizeof(char), size, input_file);
-    if (read_result != size)
-        return READ_ERROR;
-
-    int close_res = fclose(input_file);
-    if(close_res != 0)
-        return CLOSE_ERROR;
-
-    base_text->text = text;
-    base_text->size = size;
-
-    return ALL_RIGHT;
-}
-
-Errors count_file_size (const char *const name, size_t* size)
-{
-    assert(name);
-    assert(size);
-
-    struct stat file_info;
-
-    if (stat(name, &file_info) == -1)
-    {
-        printf("stat problem\n");
-        return STAT_ERROR;
-    }
-
-    *size = file_info.st_size;
-
-    return ALL_RIGHT;
-}
 
 void handle_task (Input* base_text, Tree *const the_tree)
 {
@@ -105,6 +21,10 @@ void handle_task (Input* base_text, Tree *const the_tree)
 
 void arithm_read_tree_node (Node* node, char** start_text, Tree* the_tree)  //разбить на функции
 {
+    assert(node);
+    assert(start_text);
+    assert(the_tree);
+
     char* str = (char*)calloc(MAX_STR_LEN, sizeof(char));
     char* open = strchr(*start_text, ARITHM_OPEN_BRACE);
 
@@ -267,7 +187,7 @@ int find_op(char* str)
 
     for (size_t i = 0; i < OP_AMT; i++)
     {
-        printf("OP %d %s\n", i, operations[i]->name);
+        printf("OP %lld %s\n", i, operations[i]->name);
         cmp_res = strncmp(str, operations[i]->name, MAX_STR_LEN);
         if (cmp_res == 0)
         {
@@ -278,10 +198,4 @@ int find_op(char* str)
 
     printf("OP NUM %d\n", op_num);
     return op_num;
-}
-
-void input_dtor(Input* base_text)
-{
-    free(base_text->name);
-    free(base_text->text);
 }

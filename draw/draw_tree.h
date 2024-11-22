@@ -1,7 +1,7 @@
 #ifndef _DRAW_H_
 #define _DRAW_H_
 
-#include "C:\Users\User\Desktop\differentiator2.0\structure\tree_structure.h"
+#include "..\structure\tree_structure.h"
 
 #include <string.h>
 

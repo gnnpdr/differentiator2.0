@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "C:\Users\User\Desktop\differentiator2.0\structure\tree_structure.h"
+#include "tree_structure.h"
 
 Node* node_ctor ()
 {

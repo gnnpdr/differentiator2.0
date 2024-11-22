@@ -2,7 +2,7 @@
 #define _STRUCT_H_
 
 //-----------------------LIBS-------------------------------------
-#include "C:\Users\User\Desktop\differentiator2.0\errors\errors.h"
+#include "..\errors\errors.h"
 
 #include <assert.h>
 #include <stdlib.h>

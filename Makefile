@@ -10,22 +10,28 @@ OBJDIR  = obj
 DRAWDIR = draw
 STRUCTDIR = structure
 INTERACTIONSDIR = interactions
+TREELIBDIR = tree_lib
+STKLIBDIR = stack_lib
 
 TARGET = differentiator
 
 SOURCES = main.cpp
 DRAW = draw/draw_tree.cpp 
 STRUCT = structure/tree_structure.cpp 
-INTERACTIONS = interactions/interactions.cpp 
+INTERACTIONS = interactions/read_task.cpp interactions/write_task.cpp 
+TREELIB = tree_lib/get_database.cpp 
+STKLIB = stack_lib/stk.cpp 
 
 OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
 DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
 STRUCTOBJ = $(STRUCT:$(STRUCTDIR)/%.cpp = $(OBJDIR)/%.o)
 INTERACTIONSOBJ = $(INTERACTIONS:$(INTERACTIONSDIR)/%.cpp = $(OBJDIR)/%.o)
+TREELIBOBJ = $(TREELIB:$(TREELIBDIR)/%.cpp = $(OBJDIR)/%.o)
+STKLIBOBJ = $(STKLIB:$(STKLIBDIR)/%.cpp = $(OBJDIR)/%.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(STRUCTOBJ) $(DRAWOBJ) $(INTERACTIONSOBJ)
+$(TARGET): $(OBJECTS) $(STRUCTOBJ) $(DRAWOBJ) $(TREELIBOBJ) $(STKLIBOBJ) $(INTERACTIONSOBJ)
 	$(CC) $^ -o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
@@ -35,6 +41,12 @@ $(OBJDIR)/%.o : $(STRUCTDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(TREELIBDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(STKLIBDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(INTERACTIONSDIR)/%.cpp
