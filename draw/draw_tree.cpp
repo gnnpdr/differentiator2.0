@@ -73,13 +73,13 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
         sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, node->type, node->value, node->Left, node->Right);
     else if (node->type == NUM)
-        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#82BCE0\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#177E89\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, node->type, node->value, node->Left, node->Right);
     else if (node->type == VAR)
-        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#9BE791\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#084C61\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, node->type, node->value, node->Left, node->Right);
     else if (node->type == OP)
-        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#FACB73\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+        sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#DB3A34\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, node->type, node->value, node->Left, node->Right);
 
     if (node->Left)
@@ -143,8 +143,6 @@ Errors do_graph_cmd(const char* const input_file_name, const char* const output_
 
     char cmd[80] = {};
     sprintf_s(cmd, MAX_STR_LEN, "dot %s -Tpng -o %s", input_file_name, output_file_name);
-
-    //printf("CMD\n\n%s\n\n", cmd);
 
     if (system(cmd) != 0)
         return CMD_ERROR;

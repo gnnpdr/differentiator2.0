@@ -3,6 +3,6 @@
 
 #include "read_task.h"
 
-void write_task(Tree* the_tree, Stack* operations);
+void write_task(Node* top, Stack* stk);
 
 #endif //_WRITE_H_

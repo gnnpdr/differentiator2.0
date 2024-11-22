@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-static const size_t INPUT_FILE_SIZE = 5000;
+static const size_t INPUT_FILE_SIZE = 10000;
 
 static const size_t MAX_STR_LEN = 100;
 

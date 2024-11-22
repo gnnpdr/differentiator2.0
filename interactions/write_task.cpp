@@ -5,14 +5,14 @@
 static char* get_node_value (Node* node, Stack* stk, char* str);
 static bool check_operations_value(Stack* stk);
 
-void write_task(Tree* the_tree, Stack* stk)
+void write_task(Node* top, Stack* stk)
 {
-    assert(the_tree);
+    assert(top);
 
     char* str = (char*)calloc(MAX_STR_LEN, sizeof(char));
     //printf("HERE\n");
 
-    get_node_value(the_tree->top, stk, str); //название вообще не очень. Надо другое придумать
+    get_node_value(top, stk, str); //название вообще не очень. Надо другое придумать
     printf("THE STR %s\n", str);   //вывод можно сделать в файл, все дела. Главное - что строка получена
 
     free(str);
@@ -25,6 +25,7 @@ char* get_node_value (Node* node, Stack* stk, char* str)
     assert(str);
 
     bool need_brace = false;
+
     /*printf("-----------------------------------------------\n");
     printf("address %p\n", node);
     printf("type %lld\n", node->type);
@@ -41,8 +42,11 @@ char* get_node_value (Node* node, Stack* stk, char* str)
         stk_push(stk, (stack_element_t)node->value);
 
         //printf("GO LEFT\n");
-        get_node_value(node->Left, stk, left);
-        get_node_value(node->Right, stk, right);
+        if(node->Left)
+            get_node_value(node->Left, stk, left);
+
+        if(node->Right)
+            get_node_value(node->Right, stk, right);
         //printf("LEFT %s\n", left);
         //printf("RIGHT %s\n", right);
         
@@ -90,6 +94,9 @@ bool check_operations_value(Stack* stk) //скорее всего, надо пе
     bool need_brace = false;
 
     if (stk->data[current_num - 1] == MUL && stk->data[current_num] != MUL && stk->data[current_num] != DIV)
+        need_brace = true;
+
+    if (stk->data[current_num - 1] == POW)
         need_brace = true;
     
     return need_brace;

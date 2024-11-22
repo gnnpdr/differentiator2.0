@@ -8,7 +8,7 @@ Node* node_ctor ()
 	return node;
 }
 
-Node* make_node(Type type, int value, Node* Left, Node* Right)
+Node* make_node(Type type, double value, Node* Left, Node* Right)
 {
 	Node* node = (Node*)calloc(1, sizeof(Node));  //надо сделать проверку. по всему коду надо протянуть единую переменную для ошибок
 	//ALLOCATION_CHECK(node)
