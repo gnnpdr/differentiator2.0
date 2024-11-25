@@ -9,7 +9,7 @@ Node* node_ctor ()
 }
 
 Node* make_node(Type type, double value, Node* Left, Node* Right)
-{
+{//node_ctor
 	Node* node = (Node*)calloc(1, sizeof(Node));  //надо сделать проверку. по всему коду надо протянуть единую переменную для ошибок
 	//ALLOCATION_CHECK(node)
 	node->type = type;
@@ -23,7 +23,7 @@ Node* make_node(Type type, double value, Node* Left, Node* Right)
 Errors tree_ctor (Tree *const the_tree, Node *const start_node)
 {
     assert(the_tree);
-    the_tree->top = start_node;
+    the_tree->root = start_node;
 
     return ALL_RIGHT;
 }

@@ -9,7 +9,6 @@ static const size_t INPUT_FILE_SIZE = 10000;
 
 static const size_t MAX_STR_LEN = 100;
 
-//void print(const Node* const node);
-Errors graph_dump(Node* const node, Node* const definite_node);
+void graph_dump(Node* const node, Node* const definite_node, Errors *const error);
 
 #endif //_DRAW_H_

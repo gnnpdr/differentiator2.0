@@ -11,7 +11,7 @@
 
 static const size_t VAR_AMT =  1;
 static const size_t OP_AMT  =  6;
-static const char*  X_STR   = "x";
+static const char*  X_STR   = "x";  //pragma
 
 static const double START_VALUE = 0;
 
@@ -58,7 +58,7 @@ struct Node
 
 struct Tree
 {
-	Node* top;
+	Node* root;
 };
 
 struct VariableParameters
@@ -79,12 +79,12 @@ static struct VariableParameters X_STRUCT = {START_VALUE, X_STR, X_VAR};
 static struct VariableParameters* variables [VAR_AMT] = {&X_STRUCT};
 
 
-const struct OperationParameters ADD_STRUCT = {ADD_STR, ADD};
-const struct OperationParameters MUL_STRUCT = {MUL_STR, MUL};
-const struct OperationParameters DIV_STRUCT = {DIV_STR, DIV};
-const struct OperationParameters SUB_STRUCT = {SUB_STR, SUB};
-const struct OperationParameters POW_STRUCT = {POW_STR, POW};
-const struct OperationParameters LOG_STRUCT = {LOG_STR, LOG};
+static const struct OperationParameters ADD_STRUCT = {ADD_STR, ADD};
+static const struct OperationParameters MUL_STRUCT = {MUL_STR, MUL};
+static const struct OperationParameters DIV_STRUCT = {DIV_STR, DIV};
+static const struct OperationParameters SUB_STRUCT = {SUB_STR, SUB};
+static const struct OperationParameters POW_STRUCT = {POW_STR, POW};
+static const struct OperationParameters LOG_STRUCT = {LOG_STR, LOG};
 
 static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&MUL_STRUCT,

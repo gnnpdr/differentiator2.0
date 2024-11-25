@@ -1,7 +1,7 @@
 #ifndef _DIFF_H_
 #define _DIFF_H_
 
-#include "write_task.h"
+#include "write_math_expression.h"
 
 static const double SEC = 2; 
 

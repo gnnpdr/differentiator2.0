@@ -1,7 +1,7 @@
 #ifndef _ERRORS_H_
 #define _ERRORS_H_
 
-enum Errors  //отдельный файл
+enum Errors  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 {
     ALL_RIGHT,
     FILE_ERROR,
@@ -11,7 +11,9 @@ enum Errors  //отдельный файл
     CMD_ERROR,
     ALLOCATION_ERROR,
     CPY_ERROR,
-    STAT_ERROR
+    STAT_ERROR,
+    SPRINTF_ERROR,
+    SYN_ERROR
 };
 
 #define FILE_CHECK(file)    do                                      \
@@ -19,7 +21,8 @@ enum Errors  //отдельный файл
                                 if (file == nullptr)                \
                                 {                                   \
                                     printf("file wasn't opened\n"); \
-                                    return FILE_ERROR;              \
+                                    *error = FILE_ERROR;            \
+                                    return;                         \
                                 }                                   \
                             }while(0);
 
@@ -28,8 +31,53 @@ enum Errors  //отдельный файл
                                 if (buf == 0)                       \
                                 {                                   \
                                     printf("no place\n");           \
-                                    return ALLOCATION_ERROR;        \
+                                    *error = ALLOCATION_ERROR;      \
+                                    return;                         \
                                 }                                   \
                             }while(0);
+
+#define SPRINTF_CHECK do                                            \
+                            {                                       \
+                                if (sprintf_res == -1)              \
+                                {                                   \
+                                    *error = SPRINTF_ERROR;         \
+                                    return;                         \
+                                }                                   \
+                            }while(0);
+
+
+#define CPY_CHECK(name)     do                                   \
+                            {                                    \
+                                if(name == nullptr)              \
+                                {                                \
+                                    *error =  CPY_ERROR;         \
+                                    return;                      \
+                                }                                \
+                            }while(0);
+
+#define READ_CHECK           do                                 \
+                            {                                   \
+                                if (read_result != size)        \
+                                {                               \
+                                    *error = READ_ERROR;        \
+                                    return;                     \
+                                }                               \
+                            }while(0);
+
+#define CLOSE_CHECK           do                                \
+                            {                                   \
+                                if(close_res != 0)              \
+                                {                               \
+                                    *error = CLOSE_ERROR;       \
+                                    return;                     \
+                                }                               \
+                            }while(0);
+
+#define CHECK               do                                  \
+                            {                                   \
+                                if(*error != ALL_RIGHT)         \
+                                    return;                     \
+                            }while(0);
+
 
 #endif //_ERRORS_H_

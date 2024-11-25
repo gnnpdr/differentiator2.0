@@ -2,6 +2,8 @@
 
 #include "diff.h"
 
+//здесь будет куча проверок, так как создаются новые узлы
+
 static Node* copy_node (Node *const node);
 static Node* diff_op (Node *const node);
 

@@ -25,9 +25,9 @@ struct Input
     size_t node_amt;
 };
 
-Errors input_ctor (Input *const base_text);
-Errors get_database_name(Input *const base_text, char **const argv);
-Errors get_database_text (Input *const base_text);
+void input_ctor (Input *const base_text, Errors *const error);
+void get_database_name(Input *const base_text, char **const argv, Errors *const error);
+void get_database_text (Input *const base_text, Errors *const error);
 //void handle_text (Input* base_text, Tree *const the_tree);;
 void input_dtor(Input* base_text);
 
