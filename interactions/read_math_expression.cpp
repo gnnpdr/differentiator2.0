@@ -24,7 +24,7 @@ void text_to_tree_convert (Input *const base_text, Tree *const the_tree, Errors 
         *error = SYN_ERROR;
         return;
     }
-//с пробелами
+    //с пробелами
     arithm_read_tree_node(start_node, &text_ptr, the_tree, error);
 }
 
@@ -64,7 +64,7 @@ void arithm_read_tree_node (Node *const node, char **const start_text, Tree *con
         return;
     
     str = nullptr;   //поделить на три этапа
-    node->Left = node_ctor();
+    node->Left = node_ctor(error);
     arithm_read_tree_node (node->Left, start_text, the_tree, error);
     CHECK
 
@@ -73,7 +73,7 @@ void arithm_read_tree_node (Node *const node, char **const start_text, Tree *con
 
     str = nullptr;
     
-    node->Right = node_ctor();
+    node->Right = node_ctor(error);
     arithm_read_tree_node (node->Right, start_text, the_tree, error);
     CHECK
 

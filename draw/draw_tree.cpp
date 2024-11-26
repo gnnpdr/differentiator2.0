@@ -90,26 +90,41 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
 
     if (node == definite_node)
     {
-        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
-            input_file_data, node, node->type, node->value, node->Left, node->Right);
-        SPRINTF_CHECK
+        if (node->type == NUM)
+        {
+            sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+                input_file_data, node, NUM_DEF, node->value, node->Left, node->Right);
+            SPRINTF_CHECK
+        }
+        else if (node->type == OP)
+        {
+            sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
+                input_file_data, node, OP_DEF, operations[(int)node->value]->name, node->Left, node->Right);
+            SPRINTF_CHECK
+        }
+        else if (node->type == VAR)
+        {
+            sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
+                input_file_data, node, VAR_DEF, variables[(int)node->value]->name, node->Left, node->Right);
+            SPRINTF_CHECK
+        }
     } 
     else if (node->type == NUM)
     {
-        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#177E89\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
-            input_file_data, node, node->type, node->value, node->Left, node->Right);
+        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#177E89\"; label = \"{<f0> %s | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+            input_file_data, node, NUM_DEF, node->value, node->Left, node->Right);
         SPRINTF_CHECK
     }
     else if (node->type == VAR)
     {
-        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#084C61\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
-            input_file_data, node, node->type, node->value, node->Left, node->Right);
+        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#084C61\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
+            input_file_data, node, VAR_DEF, variables[(int)node->value]->name, node->Left, node->Right);
         SPRINTF_CHECK
     }
     else if (node->type == OP)
     {
-        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#DB3A34\"; label = \"{<f0> %d | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
-            input_file_data, node, node->type, node->value, node->Left, node->Right);
+        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#DB3A34\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
+            input_file_data, node, OP_DEF, operations[(int)node->value]->name, node->Left, node->Right);
         SPRINTF_CHECK
     }
     
@@ -188,7 +203,7 @@ void do_graph_cmd(const char* const input_file_name, const char* const output_fi
     assert(output_file_name);
     assert(error);
 
-    char cmd[80] = {};
+    char cmd[MAX_STR_LEN] = {};
     int sprintf_res = sprintf_s(cmd, MAX_STR_LEN, "dot %s -Tpng -o %s", input_file_name, output_file_name);
     SPRINTF_CHECK
 

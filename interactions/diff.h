@@ -5,6 +5,6 @@
 
 static const double SEC = 2; 
 
-Node* diff_node (Node *const node);
+Node* diff_node (Node *const node, Errors *const error);
 
 #endif //_DIFF_H_

@@ -2,16 +2,24 @@
 
 #include "tree_structure.h"
 
-Node* node_ctor ()
+Node* node_ctor (Errors *const error)
 {
+	assert(error);
+
 	Node* node = (Node*)calloc(1, sizeof(Node));
+	if (node == nullptr)
+		*error = ALLOCATION_ERROR;
+
 	return node;
 }
 
-Node* make_node(Type type, double value, Node* Left, Node* Right)
-{//node_ctor
-	Node* node = (Node*)calloc(1, sizeof(Node));  //надо сделать проверку. по всему коду надо протянуть единую переменную для ошибок
-	//ALLOCATION_CHECK(node)
+Node* make_node(Type type, double value, Node* Left, Node* Right, Errors *const error)
+{
+	assert(error);
+	Node* node = node_ctor(error);
+	if (*error != ALL_RIGHT)
+		return nullptr;
+	
 	node->type = type;
 	node->value = value;
 	node->Left = Left;
@@ -20,15 +28,15 @@ Node* make_node(Type type, double value, Node* Left, Node* Right)
 	return node;
 }
 
-Errors tree_ctor (Tree *const the_tree, Node *const start_node)
+void tree_ctor (Tree *const the_tree, Node *const start_node)
 {
     assert(the_tree);
-    the_tree->root = start_node;
+	assert(start_node);
 
-    return ALL_RIGHT;
+    the_tree->root = start_node;
 }
 
-void tree_dtor(Node* node)
+Node* tree_dtor(Node* node)
 {
 	assert(node);
 
@@ -36,7 +44,7 @@ void tree_dtor(Node* node)
 	{
 		free(node);
 		node = nullptr;
-		return;
+		return node;
 	}	
 
 	if (node->Left)
@@ -44,20 +52,28 @@ void tree_dtor(Node* node)
 		tree_dtor(node->Left);
 
 		if (!node->Right)
+		{
 			free(node);
+			node = nullptr;
+		}
 	}
 
 	if (node->Right)
 	{
 		tree_dtor(node->Right);
 		free(node);
+		node = nullptr;
 	}
+
+	return node;
 }
 
 
-void node_dtor(Node* node)
+Node* node_dtor(Node* node)
 {
 	assert(node);
 
 	free(node);
+	node = nullptr;
+	return node;
 }

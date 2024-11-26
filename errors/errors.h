@@ -13,7 +13,8 @@ enum Errors  //��������� ����
     CPY_ERROR,
     STAT_ERROR,
     SPRINTF_ERROR,
-    SYN_ERROR
+    SYN_ERROR,
+    MATH_ERROR
 };
 
 #define FILE_CHECK(file)    do                                      \
