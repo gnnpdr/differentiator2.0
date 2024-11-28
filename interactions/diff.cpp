@@ -4,7 +4,6 @@
 
 //здесь будет куча проверок, так как создаются новые узлы
 
-static Node* copy_node (Node *const node, Errors *const error);
 static Node* diff_op (Node *const node, Errors *const error);
 
 static Node* add_sub_diff (Node *const node, Errors *const error);
@@ -13,6 +12,7 @@ static Node* div_diff(Node *const node, Errors *const error);
 static Node* pow_diff(Node *const node, Errors *const error);
 static Node* exp_func_diff(Node *const node, Errors *const error);
 static Node* compl_func_diff(Node *const node, Errors *const error);
+static Node* log_diff(Node *const node, Errors *const error);
 
 Node* diff_node (Node *const node, Errors *const error)
 {
@@ -47,35 +47,13 @@ Node* copy_node (Node *const node, Errors *const error)  //поменять на
 
     Node* left_node = nullptr;
     Node* right_node = nullptr;
-        
-    /*printf("-------------CURRENT NODE----------------------------------\n");
-    printf("address %p\n", node);
-    printf("type %lld\n", node->type);
-    printf("value %lg\n", node->value);
-    printf("---------------------------------------------------\n");*/
 
     
     if (node->Left)
-    {
-        //printf("MAKE LEFT\n");
         left_node = copy_node(node->Left, error);
-        /*printf("-------------LEFT NODE----------------------------------\n");
-        printf("address %p\n", left_node);
-        printf("type %lld\n", left_node->type);
-        printf("value %lg\n", left_node->value);
-        printf("---------------------------------------------------\n");*/
-    }
     
     if (node->Right)
-    {
-        //printf("MAKE RIGHT\n");
         right_node = copy_node(node->Right, error);
-        /*printf("-------------RIGHT NODE----------------------------------\n");
-        printf("address %p\n", right_node);
-        printf("type %lld\n", right_node->type);
-        printf("value %lg\n", right_node->value);
-        printf("---------------------------------------------------\n");*/
-    }
     
     Node* new_node = make_node(node->type, node->value, left_node, right_node, error);
 
@@ -99,12 +77,15 @@ Node* diff_op (Node *const node, Errors *const error)
     else if (node->value == DIV)
         new_node = div_diff(node, error);
 
+    else if (node->value == LOG)
+        new_node = log_diff(node, error);
+
     else if (node->value == POW)
     {
         if (node->Left->type == VAR && node->Right->type == NUM)
-           new_node = pow_diff(node, error);
-        
-        else if (node->Right->type == NUM && node->Right->type == VAR) //для этого случая надо сделать отдельный вывод. Если натуральный или десятичный выписать его по-другому
+            new_node = pow_diff(node, error);
+           
+        else if (node->Left->type == NUM && node->Right->type == VAR) //для этого случая надо сделать отдельный вывод. Если натуральный или десятичный выписать его по-другому
             new_node = exp_func_diff(node, error);
         
         else if (node->Left->type != NUM && node->Right->type != NUM)
@@ -116,8 +97,11 @@ Node* diff_op (Node *const node, Errors *const error)
 
 Node* add_sub_diff (Node *const node, Errors *const error)
 {
+    //graph_dump(node->Left, node->Left, error);
     Node* left_node = diff_node(node->Left, error);
+    //graph_dump(left_node, left_node, error);
     Node* right_node = diff_node(node->Right, error);
+    //graph_dump(right_node, right_node, error);
 
     Node* new_node = make_node(node->type, node->value, left_node, right_node, error);
 
@@ -161,12 +145,34 @@ Node* div_diff(Node *const node, Errors *const error)
     return new_node;
 }
 
+Node* log_diff(Node *const node, Errors *const error)
+{
+    assert(node);
+    assert(error);
+
+    Node* num_node = diff_node(node->Right, error);
+
+    Node* exp_node = make_node(NUM, EXP, nullptr, nullptr, error);
+
+    Node* log_node = make_node(OP, LOG, exp_node, node->Left, error);
+
+    Node* denom_node = make_node(OP, MUL, node->Right, log_node, error);
+
+    Node* new_node = make_node(OP, DIV, num_node, denom_node, error);  //хз, мб я перепуталаа числитель и знаменатель по наименованиям, гениально
+
+    return new_node;
+}
+
 Node* pow_diff(Node *const node, Errors *const error)
 {
-    Node* pow_node = make_node(NUM, node->Right->value - 1, nullptr, nullptr, error);
+    Node* pow_num_node = make_node(NUM, node->Right->value - 1, nullptr, nullptr, error);
     Node* var_node = copy_node(node->Left, error);
 
-    Node* new_node = make_node(OP, POW, var_node, pow_node, error);
+    Node* num_node = copy_node(node->Right, error);
+    Node* pow_node = make_node(OP, POW, var_node, pow_num_node, error);
+
+    Node* new_node = make_node(OP, MUL, num_node, pow_node, error);
+    //graph_dump(new_node, pow_num_node, error);
 
     return new_node;
 }
@@ -176,7 +182,7 @@ Node* exp_func_diff(Node *const node, Errors *const error)
     Node* exp_node = copy_node(node, error);
 
     Node* llog_node = make_node(NUM, EXP, nullptr, nullptr, error);
-    Node* rlog_node = make_node(NUM, node->Right->value, nullptr, nullptr, error);
+    Node* rlog_node = copy_node(node->Left, error);
 
     Node* log_node = make_node(OP, LOG, llog_node, rlog_node, error);
 
@@ -189,15 +195,13 @@ Node* compl_func_diff(Node *const node, Errors *const error)
 {
     Node* left_node = copy_node(node, error);
 
-    Node* llog_node = make_node(NUM, EXP, nullptr, nullptr, error);
-    Node* rlog_node = copy_node(node->Left, error);
+    Node* exp_node = make_node(NUM, EXP, nullptr, nullptr, error);
 
-    Node* rr_node = make_node(OP, LOG, llog_node, rlog_node, error);
-    Node* lr_node = copy_node(node->Right, error);
+    Node* rpow_node = make_node(OP, LOG, exp_node, node->Left, error); 
+    Node* pow_node = make_node(OP, MUL, node->Right, rpow_node, error);
 
-    Node* temp_node = make_node(OP, MUL, lr_node, rr_node, error);
-    Node* right_node = diff_node(temp_node, error);
-
+    Node* right_node = mul_diff(pow_node, error);
+    
     Node* new_node = make_node(OP, MUL, left_node, right_node, error);
 
     return new_node;

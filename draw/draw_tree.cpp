@@ -14,19 +14,27 @@ static void do_graph_cmd(const char* const input_file_name, const char* const ou
 
 void graph_dump(Node* const node, Node* const definite_node, Errors *const error)
 {
+    //printf("address %p\ntype %d\nvalue %lg\n", node, node->type, node->value);
     assert(node);
     assert(definite_node);
     assert(error);
+    //printf("HERE\n");
+
+    //printf("%d\n", *error);
 
     int sprintf_res = 0;
 
     static size_t enter_cnt = 0;
+    //printf("error %d\n", *error);
 
     char  input_file_name[MAX_STR_LEN] = {};
     char output_file_name[MAX_STR_LEN] = {};
 
     make_file_names(input_file_name, output_file_name, enter_cnt, error);
+    //printf("error %d\n", *error);
     CHECK
+    //printf("IN NAME %s\nOUT NAME %s\n", input_file_name, output_file_name);
+    
 
     char input_file_data[INPUT_FILE_SIZE] = {};
 
@@ -36,14 +44,23 @@ void graph_dump(Node* const node, Node* const definite_node, Errors *const error
     make_nodes(node, definite_node, input_file_data, error);
     CHECK
 
+    //printf("NODES\n");
+    //printf("%s\n", input_file_data);
+
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n", input_file_data);
     SPRINTF_CHECK
 
     make_connections(node, input_file_data, error);
     CHECK
 
+    //printf("CONNECTIONS\n");
+    //printf("%s\n", input_file_data);
+
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n}\n", input_file_data);
     SPRINTF_CHECK
+
+    //printf("FULL\n");
+    //printf("%s\n", input_file_data);
 
     fill_input_file(input_file_name, input_file_data, error);
     CHECK
@@ -73,6 +90,8 @@ void make_file_names(char* const input_file_name, char* const output_file_name, 
 
     sprintf_res = sprintf_s(output_file_name, MAX_STR_LEN, "%s%lld.png", name_base, enter_cnt);
     SPRINTF_CHECK
+
+    //printf("INPUT %s\nOUTPUT %s\n", input_file_name, output_file_name);
 }
 
 
