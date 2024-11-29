@@ -63,14 +63,6 @@ void stk_push(Stack *const stk, stack_element_t element, Errors *const error)
 
     size++;
     stk->size = size;
-
-    /*printf("--------------------------------\nSTACK PUSH\n");
-    printf("\n\n");
-    for (size_t i = 0; i < stk->capacity; i++)
-            printf("%d ", stk->data[i]);
-    printf("\n");*/
-
-    //stk->data = data;   //может быть, это не нужно
 }
 
 
@@ -95,11 +87,6 @@ void change_capacity(Stack *const stk, Errors *const error)
 
     stk->capacity = new_capacity;
     stk->data = data; 
-
-    /*for (int i = 0; i < new_capacity; i++)
-        printf("%d ", data[i]);
-
-    printf("\n");*/
 }
 
 void stk_pop(Stack *const stk, stack_element_t* elem, Errors *const error)
@@ -123,13 +110,4 @@ void stk_pop(Stack *const stk, stack_element_t* elem, Errors *const error)
     stk->data = data;
 
     return;
-
-    /*printf("--------------------------------\nSTACK POP\n");
-    printf("\n\n");
-    for (size_t i = 0; i < stk->capacity; i++)
-            printf("%d ", stk->data[i]);
-    printf("\n");*/
-
-    //CHECK_STK(stk, err)
-    //return;
 }

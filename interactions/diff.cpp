@@ -97,11 +97,9 @@ Node* diff_op (Node *const node, Errors *const error)
 
 Node* add_sub_diff (Node *const node, Errors *const error)
 {
-    //graph_dump(node->Left, node->Left, error);
     Node* left_node = diff_node(node->Left, error);
-    //graph_dump(left_node, left_node, error);
+    
     Node* right_node = diff_node(node->Right, error);
-    //graph_dump(right_node, right_node, error);
 
     Node* new_node = make_node(node->type, node->value, left_node, right_node, error);
 
@@ -158,7 +156,7 @@ Node* log_diff(Node *const node, Errors *const error)
 
     Node* denom_node = make_node(OP, MUL, node->Right, log_node, error);
 
-    Node* new_node = make_node(OP, DIV, num_node, denom_node, error);  //хз, мб я перепуталаа числитель и знаменатель по наименованиям, гениально
+    Node* new_node = make_node(OP, DIV, num_node, denom_node, error);
 
     return new_node;
 }
@@ -172,7 +170,6 @@ Node* pow_diff(Node *const node, Errors *const error)
     Node* pow_node = make_node(OP, POW, var_node, pow_num_node, error);
 
     Node* new_node = make_node(OP, MUL, num_node, pow_node, error);
-    //graph_dump(new_node, pow_num_node, error);
 
     return new_node;
 }

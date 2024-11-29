@@ -27,21 +27,16 @@ void write_math_expression(Node* root, Stack *const stk, Errors *const error)
 
     size_t new_change = 1;
 
-    printf("WRITE\n");
 
     while (new_change != 0)
     {
-        printf("CHANGE\n");
-        //graph_dump(root, root, error);
-
+        new_change = 0;
+        
         make_ln(root, &new_change);
-        //graph_dump(root, root, error);
 
-        calculations (root, &new_change);
-        //graph_dump(root, root, error);
+        convert_const(root, &new_change, error, root);
 
-        convert_const (root, &new_change, error, root);
-        graph_dump(root, root, error);
+        calculations(root, &new_change);
     }
         
     char* str = (char*)calloc(MAX_STR_LEN, sizeof(char));
@@ -174,50 +169,32 @@ bool compare_op_priority(Stack *const stk)
 
 Node* convert_const (Node* node, size_t *const new_change, Errors *const error, Node* root)
 {
-    *new_change = 0;
     assert(node);
     assert(error);
 
     Node* old_node = node;
 
-    //printf("CONSTS\n");
-    //printf("----------------\nNODE\n%d\n%lg\n------------------\n", node->type, node->value);
-
     if(node->Left)
-    {
-        printf("GO LEFT\n");
         node->Left = convert_const (node->Left, new_change, error, root);
-    }
         
     if(node->Right)
-    {
-        printf("GO RIGHT\n");
         node->Right = convert_const (node->Right, new_change, error, root);
-    }
         
     if (!node->Right && !node->Left)
         return node;
 
     if (node->value == ADD || node->value == SUB)
-    {
         node = check_node_add(node, error, new_change);
         
-    }
     else if (node->value == DIV)
-    {
         node = check_node_div(node, error, new_change);
-    }
+    
     else if (node->value == POW)
-    {
         node = check_node_pow(node, error, new_change);
-    }
-    if (node->value == MUL)
-    {
+    
+    else if (node->value == MUL)
         node = check_node_mul(node, error, new_change);
-    }
-
-    if (node != old_node)
-        graph_dump(root, node, error);
+    
 
     return node;
 }
@@ -227,18 +204,16 @@ Node* check_node_add (Node* node, Errors *const error, size_t *const new_change)
     assert(node);
     assert(error);
 
-    //printf("NUMS ADD\n");
     if (node->Left->value == 0 && node->Left->type == NUM)
     {
         node->Left = node_dtor(node->Left);  //это нормально, нет проблем с *памятью*?
         node = node->Right;
         (*new_change)++;
     }
-    else if (node->Right->value == 0 && node->Right->type == NUM)
-    {
-        node->Right = node_dtor(node->Left);
+    else if (node->Right->value == 0 && node->Right->type == NUM)  //вот здесь была проблема!
+    {                                                   //это невероятно, сколько проблем может принести невнимательность
+        node->Right = node_dtor(node->Right);
         node = node->Left;
-        (*new_change)++;
         (*new_change)++;
     }
     else if (node->Left->value == 0 && node->Right->value == 0 && node->Right->type == NUM && node->Left->type == NUM)
@@ -257,25 +232,22 @@ Node* check_node_div (Node* node, Errors *const error, size_t *const new_change)
     assert(node);
     assert(error);
 
-    printf("DIV\n");
-
     bool is_equal = true;
     compare_branches(node->Left, node->Right, &is_equal);
-    //printf("is equal %d\n", is_equal);
 
     if (is_equal)
     {
-        printf("TRY TO CHANGE\n");
-        node->Left = node_dtor(node->Left);
-        node->Right = node_dtor(node->Right);
+        node->Right = nullptr; 
+        node->Left = nullptr;
 
         node->type = NUM;
         node->value = 1;
-
+        
         (*new_change)++;
     }
 
-    //graph_dump(node, node, error);
+    if (!node->Left || !node->Right)
+        return node;
 
     if (node->Left->value == 0 && node->Left->type == NUM)
     {
@@ -295,7 +267,6 @@ Node* check_node_div (Node* node, Errors *const error, size_t *const new_change)
     }
     else if (node->Right->value == 0 && node->Right->type == NUM)
     {
-        printf("MATH ERROR\n");
         *error = MATH_ERROR;
         return nullptr;
     }
@@ -307,20 +278,14 @@ void compare_branches(Node *const node1, Node *const node2, bool *const is_equal
 {
     assert(node1);
     assert(node2);
-    printf("TRY TO COMPARE\n");
 
     Errors error = ALL_RIGHT;
-
-    //graph_dump(node1, node1, &error);
-    //graph_dump(node2, node2, &error);
 
     if (node1->Left && node2->Left)
         compare_branches(node1->Left, node2->Left, is_equal);
 
     if (node1->Right && node2->Right)
         compare_branches(node1->Right, node2->Right, is_equal);
-
-    //printf("is eq 1 %d\n", *is_equal);
 
     if (!(*is_equal))
         return;
@@ -333,8 +298,6 @@ bool compare_nodes (Node *const node1, Node *const node2)
     assert(node1);
     assert(node2);
 
-    printf("COPMARE NODES\n");
-
     bool is_equal = false;
 
     if (node1->type == node2->type && node1->value == node2->value)
@@ -345,11 +308,8 @@ bool compare_nodes (Node *const node1, Node *const node2)
 
 Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
 {
-    //printf("MUL\n");
-    //printf("left %lg\nright %lg\n", node->Left->value, node->Right->value);
     if ((node->Left->value == 0 && node->Left->type == NUM) || (node->Right->value == 0 && node->Right->type == NUM))
     {
-        //printf("NULL\n");
         node->Left = node_dtor(node->Left);
         node->Right = node_dtor(node->Right);
 
@@ -381,6 +341,8 @@ Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
         node->Right->Left = new_num_mul;
 
         node = node->Right;
+
+        (*new_change)++;
     }
     else if (node->Left->type == OP && node->Left->value == DIV)
     {
@@ -391,6 +353,7 @@ Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
         node->Left->Left = new_num_mul;
 
         node = node->Left;
+        (*new_change)++;
     }
 
     return node;
@@ -401,16 +364,12 @@ Node* check_node_pow (Node* node, Errors *const error, size_t *const new_change)
     assert(node);
     assert(error);
 
-    //printf("POW\n");
     if (node->Right->value == 1 && node->Right->type == NUM)
     {
-        //printf("before node address %p\ntype %d\nvalue %lg\n", node, node->type, node->value);
         node->Right = node_dtor(node->Right);
-        //graph_dump(node->Left, node->Left, error);
         
         node = node->Left;
         
-        //printf("after node address %p\ntype %d\nvalue %lg\n", node, node->type, node->value);  //видно, что адрес и значения меняются
         (*new_change)++;
     }
     else if (node->Left->value == 0 && node->Left->type == NUM)
@@ -459,6 +418,7 @@ void make_ln(Node *const node, size_t *const new_change)
 
         node->type = NUM;
         node->value = 1;
+        (*new_change)++;
     }
 
     return;
@@ -466,43 +426,23 @@ void make_ln(Node *const node, size_t *const new_change)
 
 void calculations (Node *const node, size_t *const new_change)
 {
-    *new_change = 0;
-    assert(node);
-
-    //printf("CALCULATIONS\n");
-    //printf("----------------\nNODE\n%d\n%lg\n------------------\n", node->type, node->value);
+    assert(node);  //очень странно глюкнуло. в первый раз нне прошло, поставила принтф - прошло, а потом завелось. Такого не должно быть
 
     if(node->Left)
-    {
-        //printf("GO LEFT\n");
         calculations (node->Left, new_change);
-    }
-        
 
     if(node->Right)
-    {
-        //printf("GO RIGHT\n");
         calculations (node->Right, new_change);
-    }
         
     if (node->type == VAR)
-    {
-        //printf("RET VAR\n");
         return;
-    }
         
 
     if (!node->Left || !node->Right)
-    {
-        //printf("RET LEAF\n");
         return;
-    }
         
-    //вот здесь точно нужна кодогенерация
-
     if (node->Left->type == NUM && node->Right->type == NUM)
     {
-        //printf("NUMS\n");
         if (node->value == ADD)
         {
             node->type = NUM;
@@ -525,9 +465,10 @@ void calculations (Node *const node, size_t *const new_change)
         {
             node->type = NUM;
             node->value = node->Left->value / node->Right->value;
-               
+            
             node->Left = node_dtor(node->Left);
             node->Right = node_dtor(node->Right);
+
             (*new_change)++;
         }
         else if (node->value == SUB)
@@ -558,6 +499,4 @@ void calculations (Node *const node, size_t *const new_change)
             (*new_change)++;
         }
     }
-
-    //printf("RET END\n");
 }

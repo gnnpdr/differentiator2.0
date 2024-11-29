@@ -75,5 +75,6 @@ Node* node_dtor(Node* node)
 
 	free(node);
 	node = nullptr;
+
 	return node;
 }

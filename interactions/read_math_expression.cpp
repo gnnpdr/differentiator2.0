@@ -19,15 +19,8 @@ void text_to_tree_convert (Input *const base_text, Tree *const the_tree, Errors 
     Node* start_node = the_tree->root;
 
     char* text_ptr = strchr(text, ARITHM_OPEN_BRACE);
-    /*if (text_ptr == nullptr)
-    {
-        *error = SYN_ERROR;
-        return;
-    }*/
-    //с пробелами
-    //printf("%d\n", *error);
+    
     arithm_read_tree_node(start_node, &text_ptr, the_tree, error);
-    //printf("%d\n", *error);
 }
 
 void arithm_read_tree_node (Node *const node, char **const start_text, Tree *const the_tree, Errors *const error)  //разбить на функции
@@ -45,7 +38,6 @@ void arithm_read_tree_node (Node *const node, char **const start_text, Tree *con
         return;
 
     str = arithm_get_str (start_text, str);
-    //printf("%s\n", str);
 
     int cmp_res = strncmp(str, EMPTY_STR, MAX_STR_LEN);
     if (cmp_res == 0)
@@ -56,7 +48,6 @@ void arithm_read_tree_node (Node *const node, char **const start_text, Tree *con
 
     get_arg(node, str, cmp_res, error);
     CHECK
-    //printf("%s\n", str);
 
     open = strchr(*start_text, ARITHM_OPEN_BRACE);
     char* close = strchr(*start_text, ARITHM_CLOSE_BRACE);
@@ -95,15 +86,12 @@ void get_arg(Node *const node, char *const str, int cmp_res, Errors *const error
     bool is_var = false;
     double arg = 0;
 
-    //printf("%s\n", str);
     arg = strtod(str, &endstr);  //проверка не может быть осуществлена, 0 входит в норм значения
-    //printf("arg %lg\n", arg);
 
     cmp_res = strncmp(str, endstr, MAX_STR_LEN);
     if (cmp_res == 0)
     {
         arg = (double)get_var_ind(endstr, &is_var);
-        //printf("arg ind %lg\n", arg);
 
         node->type  = VAR;
         node->value = arg;
@@ -111,7 +99,6 @@ void get_arg(Node *const node, char *const str, int cmp_res, Errors *const error
         if (arg == ERROR_VALUE)
         {
             arg = (double)get_op_ind(endstr);
-            //printf("arg op ind %lg\n", arg);
 
             if(arg == ERROR_VALUE)
             {
@@ -147,8 +134,10 @@ char* arithm_get_str (char** start_text, char* str)
 
     if (open_ch < close_ch && open_ch != nullptr)
         sscanf(text_ptr, "%[^(]", str);
+
     else if (open_ch == nullptr)
         sscanf(text_ptr, "%[^)]", str);
+
     else
         sscanf(text_ptr, "%[^)]", str);
     
