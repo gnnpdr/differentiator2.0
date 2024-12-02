@@ -13,6 +13,9 @@ static Node* pow_diff(Node *const node, Errors *const error);
 static Node* exp_func_diff(Node *const node, Errors *const error);
 static Node* compl_func_diff(Node *const node, Errors *const error);
 static Node* log_diff(Node *const node, Errors *const error);
+static Node* sin_diff(Node *const node, Errors *const error);
+static Node* cos_diff(Node *const node, Errors *const error);
+static Node* tg_diff(Node *const node, Errors *const error);
 
 Node* diff_node (Node *const node, Errors *const error)
 {
@@ -79,6 +82,15 @@ Node* diff_op (Node *const node, Errors *const error)
 
     else if (node->value == LOG)
         new_node = log_diff(node, error);
+
+    else if (node->value == SIN)
+        new_node = sin_diff(node, error);
+
+    else if (node->value == COS)
+        new_node = cos_diff(node, error);
+
+    else if (node->value == TG)
+        new_node = tg_diff(node, error);
 
     else if (node->value == POW)
     {
@@ -157,6 +169,53 @@ Node* log_diff(Node *const node, Errors *const error)
     Node* denom_node = make_node(OP, MUL, node->Right, log_node, error);
 
     Node* new_node = make_node(OP, DIV, num_node, denom_node, error);
+
+    return new_node;
+}
+
+Node* sin_diff(Node *const node, Errors *const error)
+{
+    Node* arg = copy_node(node->Right, error);  //пусть аргументы тригонометрии будут справа
+
+    Node* trig = make_node(OP, COS, nullptr, arg, error);
+    Node* compl_case = diff_node(arg, error);
+    Node* new_node = make_node(OP, MUL, compl_case, trig, error);
+
+    //надо вставить дифференцирование сложной функции
+    return new_node;
+}
+
+Node* cos_diff(Node *const node, Errors *const error)
+{
+    Node* arg = copy_node(node->Right, error);  //пусть аргументы тригонометрии будут справа
+    
+    Node* minus = make_node(NUM, -1, nullptr, nullptr, error);
+    Node* sin = make_node(OP, SIN, nullptr, arg, error);
+
+    Node* trig = make_node(OP, MUL, minus, sin, error);
+
+    Node* compl_case = diff_node(arg, error);
+    Node* new_node = make_node(OP, MUL, compl_case, trig, error);
+
+    return new_node;
+}
+
+Node* tg_diff(Node *const node, Errors *const error)
+{
+    Node* arg = copy_node(node->Right, error);
+
+    Node* two = make_node(NUM, 2, nullptr, nullptr, error); 
+    Node* double_arg = make_node(OP, POW, arg, two, error);
+
+    Node* one = make_node(NUM, 1, nullptr, nullptr, error);  
+    Node* denom_node = make_node(OP, ADD, one, double_arg, error);
+
+    Node* num_node = copy_node(one, error);
+
+    Node* trig = make_node(OP, DIV, num_node, denom_node, error);
+
+    Node* compl_case = diff_node(arg, error);
+    Node* new_node = make_node(OP, MUL, compl_case, trig, error);
 
     return new_node;
 }

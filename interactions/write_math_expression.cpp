@@ -16,6 +16,10 @@ static Node* check_node_div (Node* node, Errors *const error, size_t *const new_
 static Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change);
 static Node* check_node_pow (Node* node, Errors *const error, size_t *const new_change);
 
+static Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change);
+static Node* check_node_cos (Node* node, Errors *const error, size_t *const new_change);
+static Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change);
+
 static void compare_branches(Node *const node1, Node *const node2, bool *const is_equal);
 static bool compare_nodes (Node *const node1, Node *const node2);
 
@@ -174,8 +178,11 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
 
     Node* old_node = node;
 
+
     if(node->Left)
+    {
         node->Left = convert_const (node->Left, new_change, error, root);
+    }
         
     if(node->Right)
         node->Right = convert_const (node->Right, new_change, error, root);
@@ -195,6 +202,14 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
     else if (node->value == MUL)
         node = check_node_mul(node, error, new_change);
     
+    else if (node->value == SIN)
+        node = check_node_sin(node, error, new_change);
+
+    else if (node->value == COS)
+        node = check_node_cos(node, error, new_change);
+
+    else if (node->value == TG)
+        node = check_node_tg(node, error, new_change);
 
     return node;
 }
@@ -308,6 +323,8 @@ bool compare_nodes (Node *const node1, Node *const node2)
 
 Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
 {
+    //graph_dump(node, node, error);
+
     if ((node->Left->value == 0 && node->Left->type == NUM) || (node->Right->value == 0 && node->Right->type == NUM))
     {
         node->Left = node_dtor(node->Left);
@@ -422,6 +439,111 @@ void make_ln(Node *const node, size_t *const new_change)
     }
 
     return;
+}
+
+Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change)
+{
+    assert(node);
+    assert(error);
+
+    if (node->Right->type != NUM)
+        return node;
+
+    //double pi_mod = fmod (node->value, PI);
+    //double half_pi_mod = fmod (node->value, PI / 2);
+
+    /*if (pi_mod == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 0;
+        (*new_change)++;
+    }
+    else if (half_pi_mod == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 1;
+
+        (*new_change)++;
+    }*/
+
+   if (node->Right->value == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 0;
+        (*new_change)++;
+    }
+
+    return node;
+}
+
+Node* check_node_cos (Node* node, Errors *const error, size_t *const new_change)
+{
+    assert(node);
+    assert(error);
+
+    if (node->Right->type != NUM)
+        return node;
+
+    /*double pi_mod = fmod (node->value, PI);
+    double half_pi_mod = fmod (node->value, PI / 2);
+
+    if (pi_mod == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 1;
+        (*new_change)++;
+    }
+    else if (half_pi_mod == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 0;
+        
+        (*new_change)++;
+    }*/
+
+    if (node->Right->value == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 1;
+        
+        (*new_change)++;
+    }
+
+    return node;
+}
+
+Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change)
+{
+    assert(node);
+    assert(error);
+
+    if (node->Right->type != NUM)
+        return node;
+
+    double pi_mod = fmod (node->value, PI);
+
+    if (pi_mod == 0)  //надо ноль сделать константой
+    {
+        node->Right = node_dtor(node->Right);
+
+        node->type = NUM;
+        node->value = 0;
+        (*new_change)++;
+    }
+
+    return node;
 }
 
 void calculations (Node *const node, size_t *const new_change)

@@ -1,7 +1,7 @@
 #ifndef _DIFF_H_
 #define _DIFF_H_
 
-#include "read_math_expression.h"
+#include "rec_tree_read.h"
 
 static const double SEC = 2; 
 

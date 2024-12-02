@@ -6,8 +6,6 @@
 
 static char* arithm_get_str (char** start_text, char* str);
 static void get_arg(Node *const node, char *const str, int cmp_res, Errors *const error);
-static int get_var_ind(char* str, bool* is_var);
-static int get_op_ind(char* str);
 
 void text_to_tree_convert (Input *const base_text, Tree *const the_tree, Errors *const error)
 {

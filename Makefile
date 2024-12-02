@@ -18,7 +18,7 @@ TARGET = differentiator
 SOURCES = main.cpp
 DRAW = draw/draw_tree.cpp 
 STRUCT = structure/tree_structure.cpp 
-INTERACTIONS = interactions/read_math_expression.cpp interactions/diff.cpp interactions/write_math_expression.cpp  
+INTERACTIONS = interactions/read_math_expression.cpp interactions/rec_tree_read.cpp interactions/diff.cpp interactions/talor.cpp interactions/write_math_expression.cpp  
 TREELIB = tree_lib/get_database.cpp 
 STKLIB = stack_lib/stk.cpp 
 
