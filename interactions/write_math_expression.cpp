@@ -185,7 +185,6 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
 {
     assert(node);
     assert(error);
-    printf("address %p\n", node);
 
     Node* old_node = node;
 
@@ -203,38 +202,32 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
 
     if (node->value == ADD || node->value == SUB)
     {
-        printf("ADD\n");
         node = check_node_add(node, error, new_change);
     }
         
     else if (node->value == DIV)
     {
-        printf("DIV\n");
         node = check_node_div(node, error, new_change);
     }
         
     else if (node->value == POW)
     {
-        printf("POW\n");
         node = check_node_pow(node, error, new_change);
     }
         
     else if (node->value == MUL)
     {
-        printf("MUL\n");
         node = check_node_mul(node, error, new_change);
     }
         
     else if (node->value == SIN)
     {
-        printf("SIN\n");
         node = check_node_sin(node, error, new_change);
     }
         
 
     else if (node->value == COS)
     {
-        printf("COS\n");
         node = check_node_cos(node, error, new_change);
     }
         

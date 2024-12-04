@@ -28,16 +28,11 @@ void graph_dump(Node* const node, Node* const definite_node, Errors *const error
 
     char input_file_data[INPUT_FILE_SIZE] = {};
 
-    //printf("HERE\n");
-
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%sdigraph G\n{\n\tnode [shape = Mrecord; fillcolor = \"#9FDFDA\";];\n", input_file_data);
     SPRINTF_CHECK
 
     make_nodes(node, definite_node, input_file_data, error);
     CHECK
-
-    //printf("DATA\n%s\n", input_file_data);
-    //printf("HERE\n");
 
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n", input_file_data);
     
@@ -46,15 +41,10 @@ void graph_dump(Node* const node, Node* const definite_node, Errors *const error
     make_connections(node, input_file_data, error);
     CHECK
 
-    //printf("HERE\n");
-
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n}\n", input_file_data);
     SPRINTF_CHECK
-    //printf("HERE\n");
     fill_input_file(input_file_name, input_file_data, error);
     CHECK
-    
-    //printf("DATA\n%s\n", input_file_data);
 
     do_graph_cmd(input_file_name, output_file_name, error);
     CHECK

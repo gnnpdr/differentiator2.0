@@ -5,7 +5,7 @@
 static void func_dependency (Node *const node, double var_val, Errors *const error);
 static size_t make_fact(size_t num);
 
-Node* make_talor(Node *const root, size_t decomp_degree, double step, Errors *const error)
+Node* make_talor(Node *const root, int decomp_degree, double step, Errors *const error)
 {
     assert(root);
     assert(error);
@@ -13,17 +13,17 @@ Node* make_talor(Node *const root, size_t decomp_degree, double step, Errors *co
     Node* final_node = nullptr;
     Node* diff = nullptr;
 
-    //if (step != 0)
+    if (step != 0) //может, стоит сделать эту переменную статической, чтобы не добавлять ее в аргументы функции, а то логически не очень
         diff = diff_node(root, error);
-    //else
-    //    diff = copy_node(root, error);
+    else
+        diff = copy_node(root, error);
 
     Node* copy_diff = copy_node(diff, error);
 
     Node* var = copy_node(root->Right, error);
 
     while(var->Right)
-        var = copy_node(var->Right, error); //это подходит только для тригонометрических функций. И проверка очень глупая, если честно
+        var = copy_node(var->Right, error); //эта проверка очень глупая, если честно
 
     Node* pow_num = make_node(NUM, step, nullptr, nullptr, error);
     Node* pow_var = make_node(OP, POW, var, pow_num, error);
@@ -38,9 +38,10 @@ Node* make_talor(Node *const root, size_t decomp_degree, double step, Errors *co
     decomp_degree--;
     step++;
 
-    if (decomp_degree != 0)
+    if (decomp_degree >= 0)
     {
-        Node* new_new_node = make_talor(diff->Right, decomp_degree, step, error);
+        //Node* new_new_node = make_talor(diff->Right, decomp_degree, step, error);
+        Node* new_new_node = make_talor(diff, decomp_degree, step, error);
 
         Node* sum_node = make_node(OP, ADD, new_node, new_new_node, error);
         new_node = sum_node;
@@ -61,6 +62,7 @@ size_t make_fact(size_t num)
 
     return fact;
 }
+
 void func_dependency (Node *const node, double var_val, Errors *const error)
 {
     if (node->Left)

@@ -170,6 +170,8 @@ Node* log_diff(Node *const node, Errors *const error)
 
     Node* new_node = make_node(OP, DIV, num_node, denom_node, error);
 
+    //Node* final_node = make_node(OP, MUL, diff_node(num_node, error), new_node, error); //проблема
+
     return new_node;
 }
 
@@ -181,7 +183,6 @@ Node* sin_diff(Node *const node, Errors *const error)
     Node* compl_case = diff_node(arg, error);
     Node* new_node = make_node(OP, MUL, compl_case, trig, error);
 
-    //надо вставить дифференцирование сложной функции
     return new_node;
 }
 
