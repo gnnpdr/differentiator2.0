@@ -32,11 +32,13 @@ int main(int argc, char** argv)
 	stk_ctor(&stk, &error);
 
 	//Node* diff_tree = diff_node(the_tree.root, &error);
+
+	double denom = 0;
 	
-	Node* diff_tree = make_talor(the_tree.root, 2, &error);
-	graph_dump(diff_tree, diff_tree, &error);
-	write_math_expression(diff_tree, &stk, &error);
-	graph_dump(diff_tree, diff_tree, &error);
+	Node* diff_tree = make_talor(the_tree.root, 5, denom, &error);  //заменить denom на константу start denom
+	//graph_dump(diff_tree, diff_tree, &error);
+	diff_tree = write_math_expression(diff_tree, &stk, &error);
+	//graph_dump(diff_tree, diff_tree, &error);
 	
 	
 	stk_dtor(&stk);

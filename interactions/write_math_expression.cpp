@@ -8,8 +8,8 @@ static void latex_printf_features (int op_num, bool need_brace, char *const str,
 static bool compare_op_priority(Stack *const stk);
 
 static Node* convert_const (Node* node, size_t *const new_change, Errors *const error, Node* root);
-static void calculations (Node *const node, size_t *const new_change);
-static void make_ln(Node *const node, size_t *const new_change);
+static Node* calculations (Node* node, size_t *const new_change);
+static Node* make_ln(Node* node, size_t *const new_change);
 
 static Node* check_node_add (Node* node, Errors *const error, size_t *const new_change);
 static Node* check_node_div (Node* node, Errors *const error, size_t *const new_change);
@@ -23,7 +23,7 @@ static Node* check_node_tg (Node* node, Errors *const error, size_t *const new_c
 static void compare_branches(Node *const node1, Node *const node2, bool *const is_equal);
 static bool compare_nodes (Node *const node1, Node *const node2);
 
-void write_math_expression(Node* root, Stack *const stk, Errors *const error)
+Node* write_math_expression(Node* root, Stack *const stk, Errors *const error)
 {
     assert(root);
     assert(stk);
@@ -31,30 +31,37 @@ void write_math_expression(Node* root, Stack *const stk, Errors *const error)
 
     size_t new_change = 1;
 
-
     while (new_change != 0)
     {
         new_change = 0;
         
-        make_ln(root, &new_change);
+        root = make_ln(root, &new_change);
 
-        convert_const(root, &new_change, error, root);
+        root = convert_const(root, &new_change, error, root);
 
-        calculations(root, &new_change);
+        root = calculations(root, &new_change);
     }
         
     char* str = (char*)calloc(MAX_STR_LEN, sizeof(char));
-    ALLOCATION_CHECK(str)
-
+    if (str == 0)
+    {                              
+        printf("no place\n");      
+        *error = ALLOCATION_ERROR; 
+        return nullptr;                    
+    }   
+    
     get_node(root, stk, str, error);
-    CHECK
+    if(*error != ALL_RIGHT)
+        return nullptr; 
 
     printf("THE STR %s\n", str);
 
     free(str);
+
+    return root;
 }
 
-char* get_node (Node *const node, Stack *const stk, char *const str, Errors *const error)
+char* get_node(Node *const node, Stack *const stk, char *const str, Errors *const error)
 {
     assert(node);
     assert(stk);
@@ -108,7 +115,7 @@ void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *c
         CHECK
     }
     
-    bool need_brace = compare_op_priority(stk);
+    bool need_brace = compare_op_priority(stk);  //над скобками я еще подумаю 
     int op_num = 0;
 
     stk_pop(stk, &op_num, error);
@@ -135,7 +142,7 @@ void latex_printf_features (int op_num, bool need_brace, char *const str, char *
         SPRINTF_CHECK
     }
     else if (op_num == POW)
-    {
+    {  //да, здесь стоят лишние скобки, я еще подумаю, что с ними сделать
         sprintf_res = sprintf_s(str, MAX_STR_LEN, "(%s)%s%s", left, operations[op_num]->name, right);
         SPRINTF_CHECK
     }
@@ -165,6 +172,9 @@ bool compare_op_priority(Stack *const stk)
     if (stk->data[current_num - 1] == MUL && stk->data[current_num] != MUL && stk->data[current_num] != DIV)
         need_brace = true;
 
+    if (stk->data[current_num - 1] == DIV && stk->data[current_num] != MUL && stk->data[current_num] != DIV)
+        need_brace = true;
+
     if (stk->data[current_num - 1] == POW)
         need_brace = true;
     
@@ -175,6 +185,7 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
 {
     assert(node);
     assert(error);
+    printf("address %p\n", node);
 
     Node* old_node = node;
 
@@ -191,25 +202,50 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
         return node;
 
     if (node->value == ADD || node->value == SUB)
+    {
+        printf("ADD\n");
         node = check_node_add(node, error, new_change);
+    }
         
     else if (node->value == DIV)
+    {
+        printf("DIV\n");
         node = check_node_div(node, error, new_change);
-    
+    }
+        
     else if (node->value == POW)
+    {
+        printf("POW\n");
         node = check_node_pow(node, error, new_change);
-    
+    }
+        
     else if (node->value == MUL)
+    {
+        printf("MUL\n");
         node = check_node_mul(node, error, new_change);
-    
+    }
+        
     else if (node->value == SIN)
+    {
+        printf("SIN\n");
         node = check_node_sin(node, error, new_change);
+    }
+        
 
     else if (node->value == COS)
+    {
+        printf("COS\n");
         node = check_node_cos(node, error, new_change);
-
+    }
+        
     else if (node->value == TG)
+    {
         node = check_node_tg(node, error, new_change);
+    }
+        
+
+    //if (old_node != node)
+        //graph_dump(root, node, error);
 
     return node;
 }
@@ -221,12 +257,13 @@ Node* check_node_add (Node* node, Errors *const error, size_t *const new_change)
 
     if (node->Left->value == 0 && node->Left->type == NUM)
     {
-        node->Left = node_dtor(node->Left);  //это нормально, нет проблем с *памятью*?
+        node->Left = node_dtor(node->Left);
         node = node->Right;
+
         (*new_change)++;
     }
-    else if (node->Right->value == 0 && node->Right->type == NUM)  //вот здесь была проблема!
-    {                                                   //это невероятно, сколько проблем может принести невнимательность
+    else if (node->Right->value == 0 && node->Right->type == NUM)
+    {
         node->Right = node_dtor(node->Right);
         node = node->Left;
         (*new_change)++;
@@ -239,6 +276,7 @@ Node* check_node_add (Node* node, Errors *const error, size_t *const new_change)
         node->Right = node_dtor(node->Right);
         (*new_change)++;
     }
+
     return node;
 }
 
@@ -323,8 +361,6 @@ bool compare_nodes (Node *const node1, Node *const node2)
 
 Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
 {
-    //graph_dump(node, node, error);
-
     if ((node->Left->value == 0 && node->Left->type == NUM) || (node->Right->value == 0 && node->Right->type == NUM))
     {
         node->Left = node_dtor(node->Left);
@@ -337,7 +373,7 @@ Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
     }
     else if (node->Right->value == 1 && node->Right->type == NUM)
     {
-        node->Right = node_dtor(node->Left);
+        node->Right = node_dtor(node->Right);
         node = node->Left;
 
         (*new_change)++;
@@ -408,7 +444,7 @@ Node* check_node_pow (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-void make_ln(Node *const node, size_t *const new_change)
+Node* make_ln(Node* node, size_t *const new_change)
 {
     assert(node);
     assert(new_change);
@@ -425,7 +461,7 @@ void make_ln(Node *const node, size_t *const new_change)
         
     if (!node->Left && !node->Right)
     {
-        return;
+        return node;
     }
 
     if (node->type == OP && node->value == LOG && node->Left->value == EXP && node->Right->value == EXP)
@@ -438,7 +474,7 @@ void make_ln(Node *const node, size_t *const new_change)
         (*new_change)++;
     }
 
-    return;
+    return node;
 }
 
 Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change)
@@ -546,7 +582,7 @@ Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-void calculations (Node *const node, size_t *const new_change)
+Node* calculations (Node* node, size_t *const new_change)
 {
     assert(node);  //очень странно глюкнуло. в первый раз нне прошло, поставила принтф - прошло, а потом завелось. Такого не должно быть
 
@@ -557,11 +593,11 @@ void calculations (Node *const node, size_t *const new_change)
         calculations (node->Right, new_change);
         
     if (node->type == VAR)
-        return;
+        return node;
         
 
     if (!node->Left || !node->Right)
-        return;
+        return node;
         
     if (node->Left->type == NUM && node->Right->type == NUM)
     {
@@ -621,4 +657,6 @@ void calculations (Node *const node, size_t *const new_change)
             (*new_change)++;
         }
     }
+
+    return node;
 }

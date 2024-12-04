@@ -4,6 +4,6 @@
 #include "talor.h"
 #include <math.h>
 
-void write_math_expression(Node* root, Stack *const stk, Errors *const error);
+Node* write_math_expression(Node* root, Stack *const stk, Errors *const error);
 
 #endif //_WRITE_H_

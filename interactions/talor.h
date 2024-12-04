@@ -3,6 +3,6 @@
 
 #include "diff.h"
 
-Node* make_talor(Node *const root, size_t decomp_degree, Errors *const error);
+Node* make_talor(Node *const root, size_t decomp_degree, double denom, Errors *const error);
 
 #endif //_TALOR_H_

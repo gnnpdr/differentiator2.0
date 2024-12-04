@@ -3,55 +3,64 @@
 #include "talor.h"
 
 static void func_dependency (Node *const node, double var_val, Errors *const error);
+static size_t make_fact(size_t num);
 
-Node* make_talor(Node *const root, size_t decomp_degree, Errors *const error)
+Node* make_talor(Node *const root, size_t decomp_degree, double step, Errors *const error)
 {
-    //так то по факту маклорен подразумевается, иначе надо другую типа переменную вводить. Можно конечно, но к черту
     assert(root);
     assert(error);
 
-    double denom = 1;
-
     Node* final_node = nullptr;
+    Node* diff = nullptr;
 
-    Node* diff = diff_node(root, error);
+    //if (step != 0)
+        diff = diff_node(root, error);
+    //else
+    //    diff = copy_node(root, error);
+
     Node* copy_diff = copy_node(diff, error);
 
-    Node* var = copy_node(root->Right, error);  //так то это не очень подходит, тут надо будет разбираться дальше
+    Node* var = copy_node(root->Right, error);
 
+    while(var->Right)
+        var = copy_node(var->Right, error); //это подходит только для тригонометрических функций. И проверка очень глупая, если честно
+
+    Node* pow_num = make_node(NUM, step, nullptr, nullptr, error);
+    Node* pow_var = make_node(OP, POW, var, pow_num, error);
     func_dependency (copy_diff, 0, error);
 
-    Node* num_node = make_node(OP, MUL, var, copy_diff, error);
-    Node* denom_node = make_node(NUM, denom, nullptr, nullptr, error);
+    Node* num_node = make_node(OP, MUL, pow_var, copy_diff, error);
+
+    size_t fact = make_fact(step);
+    Node* denom_node = make_node(NUM, (double)fact, nullptr, nullptr, error);
     Node* new_node = make_node(OP, DIV, num_node, denom_node, error);
 
-    for (size_t num = 0; num < decomp_degree; num++)
+    decomp_degree--;
+    step++;
+
+    if (decomp_degree != 0)
     {
-        denom *= num;
+        Node* new_new_node = make_talor(diff->Right, decomp_degree, step, error);
 
-        diff = diff_node(diff, error);
-
-        var = copy_node(root->Right, error);
-        
-        copy_diff = copy_node(diff, error);
-
-        func_dependency (copy_diff, 0, error);
-
-        num_node = make_node(OP, MUL, var, copy_diff, error);
-        denom_node = make_node(NUM, denom, nullptr, nullptr, error);
-        Node* new_new_node = make_node(OP, DIV, num_node, denom_node, error);
-
-        final_node = make_node(OP, ADD, new_node, new_new_node, error);
-
-        new_node = new_new_node;
+        Node* sum_node = make_node(OP, ADD, new_node, new_new_node, error);
+        new_node = sum_node;
     }
 
-    if (final_node)
-        return final_node;
-    else
-        return new_node;
+    final_node = new_node;
+
+    return final_node;
 }
 
+
+size_t make_fact(size_t num)
+{
+    size_t fact = 1;
+
+    for (int i = 1; i <= num; i++)
+        fact *= i;
+
+    return fact;
+}
 void func_dependency (Node *const node, double var_val, Errors *const error)
 {
     if (node->Left)
