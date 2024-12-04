@@ -2,8 +2,6 @@
 
 #include "diff.h"
 
-//здесь будет куча проверок, так как создаются новые узлы
-
 static Node* diff_op (Node *const node, Errors *const error);
 
 static Node* add_sub_diff (Node *const node, Errors *const error);
@@ -89,7 +87,7 @@ Node* diff_op (Node *const node, Errors *const error)
     else if (node->value == COS)
         new_node = cos_diff(node, error);
 
-    else if (node->value == TG)
+    else if (node->value == TAN)
         new_node = tg_diff(node, error);
 
     else if (node->value == POW)
@@ -97,7 +95,7 @@ Node* diff_op (Node *const node, Errors *const error)
         if (node->Left->type == VAR && node->Right->type == NUM)
             new_node = pow_diff(node, error);
            
-        else if (node->Left->type == NUM && node->Right->type == VAR) //для этого случая надо сделать отдельный вывод. Если натуральный или десятичный выписать его по-другому
+        else if (node->Left->type == NUM && node->Right->type == VAR)
             new_node = exp_func_diff(node, error);
         
         else if (node->Left->type != NUM && node->Right->type != NUM)
@@ -170,14 +168,12 @@ Node* log_diff(Node *const node, Errors *const error)
 
     Node* new_node = make_node(OP, DIV, num_node, denom_node, error);
 
-    //Node* final_node = make_node(OP, MUL, diff_node(num_node, error), new_node, error); //проблема
-
     return new_node;
 }
 
 Node* sin_diff(Node *const node, Errors *const error)
 {
-    Node* arg = copy_node(node->Right, error);  //пусть аргументы тригонометрии будут справа
+    Node* arg = copy_node(node->Right, error);
 
     Node* trig = make_node(OP, COS, nullptr, arg, error);
     Node* compl_case = diff_node(arg, error);
@@ -188,7 +184,7 @@ Node* sin_diff(Node *const node, Errors *const error)
 
 Node* cos_diff(Node *const node, Errors *const error)
 {
-    Node* arg = copy_node(node->Right, error);  //пусть аргументы тригонометрии будут справа
+    Node* arg = copy_node(node->Right, error);
     
     Node* minus = make_node(NUM, -1, nullptr, nullptr, error);
     Node* sin = make_node(OP, SIN, nullptr, arg, error);

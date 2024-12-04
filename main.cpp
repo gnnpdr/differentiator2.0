@@ -7,6 +7,7 @@
 #include "interactions\diff.h"
 #include "interactions\talor.h"
 #include "interactions\write_math_expression.h"
+#include "user\user.h"
 
 int main(int argc, char** argv)
 {
@@ -16,9 +17,7 @@ int main(int argc, char** argv)
     input_ctor(&base_text, &error);
 
     get_database_name(&base_text, argv, &error);
-
     get_database_text(&base_text, &error);
-
 
 	Node* root = node_ctor (&error);
 
@@ -26,23 +25,10 @@ int main(int argc, char** argv)
 
 	root = read_tree_rec(&base_text, &error);
 	tree_ctor (&the_tree, root);
-	//graph_dump(root, root, &error);
 
-	Stack stk = {};   //можно вложить в макрос, чтобы не надо было кажды раз задавать стэк и удалять его, чтобы написать строчку
-	stk_ctor(&stk, &error);
+	choose_do_calc(&the_tree, &error);
 
-	//Node* diff_tree = diff_node(the_tree.root, &error);
-
-	double denom = 0;
-	
-	Node* diff_tree = make_talor(the_tree.root, 5, denom, &error);  //заменить denom на константу start denom
-	graph_dump(diff_tree, diff_tree, &error);
-	diff_tree = write_math_expression(diff_tree, &stk, &error);
-	graph_dump(diff_tree, diff_tree, &error);
-	
-	
-	stk_dtor(&stk);
 	tree_dtor(the_tree.root);
-	tree_dtor(diff_tree);
+	
 	input_dtor(&base_text);
 }

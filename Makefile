@@ -12,6 +12,7 @@ STRUCTDIR = structure
 INTERACTIONSDIR = interactions
 TREELIBDIR = tree_lib
 STKLIBDIR = stack_lib
+USERDIR = user
 
 TARGET = differentiator
 
@@ -21,6 +22,7 @@ STRUCT = structure/tree_structure.cpp
 INTERACTIONS = interactions/read_math_expression.cpp interactions/rec_tree_read.cpp interactions/diff.cpp interactions/talor.cpp interactions/write_math_expression.cpp  
 TREELIB = tree_lib/get_database.cpp 
 STKLIB = stack_lib/stk.cpp 
+USER = user/user.cpp 
 
 OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
 DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
@@ -28,10 +30,11 @@ STRUCTOBJ = $(STRUCT:$(STRUCTDIR)/%.cpp = $(OBJDIR)/%.o)
 INTERACTIONSOBJ = $(INTERACTIONS:$(INTERACTIONSDIR)/%.cpp = $(OBJDIR)/%.o)
 TREELIBOBJ = $(TREELIB:$(TREELIBDIR)/%.cpp = $(OBJDIR)/%.o)
 STKLIBOBJ = $(STKLIB:$(STKLIBDIR)/%.cpp = $(OBJDIR)/%.o)
+USEROBJ = $(USER:$(USERDIR)/%.cpp = $(USER)/%.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(STRUCTOBJ) $(DRAWOBJ) $(TREELIBOBJ) $(STKLIBOBJ) $(INTERACTIONSOBJ)
+$(TARGET): $(OBJECTS) $(STRUCTOBJ) $(DRAWOBJ) $(TREELIBOBJ) $(STKLIBOBJ) $(INTERACTIONSOBJ) $(USEROBJ)
 	$(CC) $^ -o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
@@ -50,6 +53,9 @@ $(OBJDIR)/%.o : $(STKLIBDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(INTERACTIONSDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(USERDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
  
 clean:

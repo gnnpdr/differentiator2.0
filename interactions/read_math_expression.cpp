@@ -2,8 +2,6 @@
 
 #include "read_math_expression.h"
 
-//поделить на этапы функцию
-
 static char* arithm_get_str (char** start_text, char* str);
 static void get_arg(Node *const node, char *const str, int cmp_res, Errors *const error);
 

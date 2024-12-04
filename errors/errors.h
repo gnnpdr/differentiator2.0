@@ -1,7 +1,7 @@
 #ifndef _ERRORS_H_
 #define _ERRORS_H_
 
-enum Errors  //��������� ����
+enum Errors
 {
     ALL_RIGHT,
     FILE_ERROR,

@@ -2,7 +2,8 @@
 
 #include "rec_tree_read.h"
 
-static Node* get_trig (char* string, int* pointer, Errors *const error);
+static Node* get_trig (char* string, int* pointer, size_t op_ind, Errors *const error);
+static Node* get_log(char* string, int* pointer, size_t op_ind, Errors *const error);
 static Node* get_pow (char* string, int* pointer, Errors *const error);
 static Node* get_add_sub (char* string, int* pointer, Errors *const error);
 static Node* get_num (char* string, int* pointer, Errors *const error);
@@ -16,7 +17,7 @@ Node* read_tree_rec (Input *const base_text, Errors* error)
 {
     int pointer = 0;
 
-    Node* root = get_trig (base_text->text, &pointer, error);
+    Node* root = get_add_sub (base_text->text, &pointer, error);
 
     if (base_text->text[pointer] != '$')
     {
@@ -28,78 +29,6 @@ Node* read_tree_rec (Input *const base_text, Errors* error)
     pointer++;
 
     return root;
-}
-
-Node* get_trig (char* string, int* pointer, Errors *const error)
-{
-    Node* val = nullptr;
-
-    char op_name[MAX_STR_LEN] = {};
-    strncpy(op_name, get_str(string + *pointer, op_name), MAX_STR_LEN);
-    int op_ind = get_op_ind(op_name);
-
-    bool is_var = false;
-    int var_ind = get_var_ind(op_name, &is_var);
-
-    bool is_trig = false;
-
-    if (op_ind != ERROR_VALUE)
-        is_trig = true;
-
-    if (strlen(op_name) == 0 || is_var)
-        val = get_add_sub (string, pointer, error);
-        
-    else
-    {
-        int op_ind = get_op_ind(op_name);
-
-        if (op_ind == ERROR_VALUE)
-            printf("NO SUCH OPERATION\n");
-
-        *pointer += strlen(op_name);
-
-        val = get_add_sub(string, pointer, error);
-
-        if (op_ind == SIN)
-            val = make_node(OP, SIN, nullptr, val, error);
-
-        else if (op_ind ==  COS)
-            val = make_node(OP, COS, nullptr, val, error);
-
-        else
-            val = make_node(OP, TG, nullptr, val, error);
-    }
-
-    /*strncpy(op_name, "", MAX_STR_LEN);  //надо освободить строку
-    strncpy(op_name, get_str(string + *pointer, op_name), MAX_STR_LEN);// не знаю, как по-другому. нельзя сувать в цикл повтор по трем или двум проверкам. да и с триемя стркмп тоже не хочется, надо аккуратно зацтклить, получилось через рекурсию
-    op_ind = get_op_ind(op_name);  //даже не страшно, что это рекурсия. фактически как цикл, так как прям перед завершением
-    //если не делать проверку снова, придется что-то изворачивать, если действовать рекурсией, то будет раскрываться как штука со скобками
-    is_trig = false;
-
-    if (op_ind != ERROR_VALUE)
-        is_trig = true;
-
-    while (is_trig)
-        val = get_trig(string, pointer, error);*/
-
-    return val;
-}
-
-Node* get_pow (char* string, int* pointer, Errors *const error)
-{
-    Node* val = get_mul_div(string, pointer, error);
-
-    while (string[*pointer] == '^')
-    {
-        char op = string[*pointer];
-        (*pointer)++;
-
-        Node* val2 = get_mul_div(string, pointer, error);
-
-        val = make_node(OP, POW, val, val2, error);
-    }
-
-    return val;
 }
 
 Node* get_add_sub (char* string, int* pointer, Errors *const error)
@@ -116,6 +45,23 @@ Node* get_add_sub (char* string, int* pointer, Errors *const error)
             val = make_node(OP, ADD, val, val2, error);
         else
             val = make_node(OP, SUB, val, val2, error);
+    }
+
+    return val;
+}
+
+Node* get_pow (char* string, int* pointer, Errors *const error)
+{
+    Node* val = get_mul_div(string, pointer, error);
+
+    while (string[*pointer] == '^')
+    {
+        char op = string[*pointer];
+        (*pointer)++;
+
+        Node* val2 = get_mul_div(string, pointer, error);
+
+        val = make_node(OP, POW, val, val2, error);
     }
 
     return val;
@@ -143,11 +89,17 @@ Node* get_mul_div (char* string, int* pointer, Errors *const error)
 
 Node* get_brace (char* string, int* pointer, Errors *const error)
 {
-    bool is_var = false;
-    char var_name[MAX_STR_LEN] = {};
-    strncpy(var_name, get_str(string + *pointer, var_name), MAX_STR_LEN);
+    char name[MAX_STR_LEN] = {};
+    strncpy(name, get_str(string + *pointer, name), MAX_STR_LEN);
+    int op_ind = get_op_ind(name);
 
-    int var_ind = get_var_ind(var_name, &is_var);
+    bool is_var = false;
+    int var_ind = get_var_ind(name, &is_var);
+
+    bool is_trig = false;
+
+    if (op_ind == SIN || op_ind == COS || op_ind == TAN)  //надо сделать отдельную структуру с этими значениями и вложить в основную с операциями
+        is_trig = true;
 
     Node* val = nullptr;
 
@@ -166,10 +118,22 @@ Node* get_brace (char* string, int* pointer, Errors *const error)
 
         (*pointer)++;
     }
-    else if (!is_var)
-        val = get_num(string, pointer, error);
+    else if (string[*pointer] == '{')  //для логарифма
+    {
+        (*pointer)++;
 
-    else
+        val = get_add_sub(string, pointer, error);
+
+        if (string[*pointer] != '}')
+        {
+            printf("BRACE PROBLEM\n");
+            *error = SYN_ERROR;
+            return 0;
+        }
+
+        (*pointer)++;
+    }
+    else if (is_var)
     {
         if (var_ind == ERROR_VALUE)
         {
@@ -180,6 +144,14 @@ Node* get_brace (char* string, int* pointer, Errors *const error)
         
         val = get_var(string, pointer, var_ind, error);
     }
+    else if (is_trig)
+        val = get_trig(string, pointer, op_ind, error);
+    
+    else if (op_ind == LOG || op_ind == LN)
+        val = get_log(string, pointer, op_ind, error);
+
+    else if (!is_var)
+        val = get_num(string, pointer, error);
         
     return val;
 }
@@ -187,7 +159,6 @@ Node* get_brace (char* string, int* pointer, Errors *const error)
 Node* get_var (char* string, int* pointer, int var_ind, Errors *const error)
 {
     double val = 0;
-
 
     size_t var_len = strlen(variables[var_ind]->name);
 
@@ -248,4 +219,43 @@ char* get_str(char *const string, char *const name)
     }
 
     return name;
+}
+
+Node* get_trig (char* string, int* pointer, size_t op_ind, Errors *const error)
+{
+    *pointer += strlen(operations[op_ind]->name);
+    Node* val = get_add_sub(string, pointer, error);
+
+    if (op_ind == SIN)
+        val = make_node(OP, SIN, nullptr, val, error);
+
+    else if (op_ind ==  COS)
+        val = make_node(OP, COS, nullptr, val, error);
+
+    else
+        val = make_node(OP, TAN, nullptr, val, error);
+
+    return val;
+}
+
+Node* get_log(char* string, int* pointer, size_t op_ind, Errors *const error)
+{
+    *pointer += strlen(operations[op_ind]->name);
+    
+    Node* base = nullptr;
+
+    if (op_ind == LN)  //для вида ln{}
+        base = make_node(NUM, EXP, nullptr, nullptr, error);
+    else
+    {
+        (*pointer)++; //для вида log_{}{}
+        base = get_add_sub(string, pointer, error);
+    }
+        
+
+    Node* val = get_add_sub(string, pointer, error);
+
+    val = make_node(OP, LOG, base, val, error);
+
+    return val;
 }

@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "..\draw\draw_tree.h"
-//#include "..\tree_lib\get_database.h"
 
 typedef  int stack_element_t;
 static const stack_element_t POISON = -13;

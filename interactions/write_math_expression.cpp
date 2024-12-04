@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "write_math_expression.h"  //переименовать, переместить сюда что-то еще
+#include "write_math_expression.h"
 
 static char* get_node (Node *const node, Stack *const stk, char *const str, Errors *const error);
 static void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *const error);
 static void latex_printf_features (int op_num, bool need_brace, char *const str, char *const left, char *const right, Errors *const error);
-static bool compare_op_priority(Stack *const stk);
+static bool compare_op_priority(Stack *const stk, char* const str, Node *const node);
 
 static Node* convert_const (Node* node, size_t *const new_change, Errors *const error, Node* root);
 static Node* calculations (Node* node, size_t *const new_change);
@@ -115,7 +115,7 @@ void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *c
         CHECK
     }
     
-    bool need_brace = compare_op_priority(stk);  //над скобками я еще подумаю 
+    bool need_brace = compare_op_priority(stk, left, node);  //над скобками я еще подумаю 
     int op_num = 0;
 
     stk_pop(stk, &op_num, error);
@@ -134,6 +134,7 @@ void latex_printf_features (int op_num, bool need_brace, char *const str, char *
     assert(right);
     assert(error);
 
+    //добавить скобки нормальные, но я не уверена, как лучше это сделать
     int sprintf_res = 0;
 
     if (op_num == DIV)
@@ -141,9 +142,29 @@ void latex_printf_features (int op_num, bool need_brace, char *const str, char *
         sprintf_res = sprintf_s(str, MAX_STR_LEN, "\\dfrac{%s}{%s}", left, right);
         SPRINTF_CHECK
     }
+    else if (op_num == MUL)
+    {
+        sprintf_res = sprintf_s(str, MAX_STR_LEN, "%s%s", left, right);  //можно точку добавить 
+        SPRINTF_CHECK                                                    //тогда надо делать проверку на отрицательное число в узлах, чтобы было понятно, что это умножение, а не вычитание
+    }
     else if (op_num == POW)
-    {  //да, здесь стоят лишние скобки, я еще подумаю, что с ними сделать
-        sprintf_res = sprintf_s(str, MAX_STR_LEN, "(%s)%s%s", left, operations[op_num]->name, right);
+    {
+        sprintf_res = sprintf_s(str, MAX_STR_LEN, "%s%s{%s}", left, operations[op_num]->name, right);
+        SPRINTF_CHECK
+    }
+    else if (op_num == LOG)
+    {
+        sprintf_res = sprintf_s(str, MAX_STR_LEN, "\\%s_{%s}{%s}", operations[op_num]->name, left, right);
+        SPRINTF_CHECK
+    }
+    else if (op_num == LN)
+    {
+        sprintf_res = sprintf_s(str, MAX_STR_LEN, "\\%s{%s}", operations[op_num]->name, right);
+        SPRINTF_CHECK
+    }
+    else if (op_num == SIN || op_num == COS || op_num == TAN)
+    {
+        sprintf_res = sprintf_s(str, MAX_STR_LEN, "\\%s(%s)", operations[op_num]->name, right);
         SPRINTF_CHECK
     }
     else
@@ -161,9 +182,11 @@ void latex_printf_features (int op_num, bool need_brace, char *const str, char *
     }
 }
 
-bool compare_op_priority(Stack *const stk)
+bool compare_op_priority(Stack *const stk, char* const str, Node *const node)
 {
     assert(stk);
+    assert(str);
+    assert(node);
 
     size_t current_num = stk->size;
 
@@ -188,11 +211,8 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
 
     Node* old_node = node;
 
-
     if(node->Left)
-    {
         node->Left = convert_const (node->Left, new_change, error, root);
-    }
         
     if(node->Right)
         node->Right = convert_const (node->Right, new_change, error, root);
@@ -201,42 +221,26 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
         return node;
 
     if (node->value == ADD || node->value == SUB)
-    {
         node = check_node_add(node, error, new_change);
-    }
         
     else if (node->value == DIV)
-    {
         node = check_node_div(node, error, new_change);
-    }
         
     else if (node->value == POW)
-    {
         node = check_node_pow(node, error, new_change);
-    }
         
     else if (node->value == MUL)
-    {
         node = check_node_mul(node, error, new_change);
-    }
         
     else if (node->value == SIN)
-    {
         node = check_node_sin(node, error, new_change);
-    }
         
-
     else if (node->value == COS)
-    {
         node = check_node_cos(node, error, new_change);
-    }
         
-    else if (node->value == TG)
-    {
+    else if (node->value == TAN)
         node = check_node_tg(node, error, new_change);
-    }
         
-
     //if (old_node != node)
         //graph_dump(root, node, error);
 
@@ -457,6 +461,14 @@ Node* make_ln(Node* node, size_t *const new_change)
         return node;
     }
 
+    if (node->type == OP && node->value == LOG && node->Left->value == EXP && node->Right->value != EXP)
+    {
+        node->Left = node_dtor(node->Left);
+
+        node->value = LN;
+        (*new_change)++;
+    }
+
     if (node->type == OP && node->value == LOG && node->Left->value == EXP && node->Right->value == EXP)
     {
         node->Left = node_dtor(node->Left);
@@ -577,7 +589,7 @@ Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change)
 
 Node* calculations (Node* node, size_t *const new_change)
 {
-    assert(node);  //очень странно глюкнуло. в первый раз нне прошло, поставила принтф - прошло, а потом завелось. Такого не должно быть
+    assert(node);
 
     if(node->Left)
         calculations (node->Left, new_change);

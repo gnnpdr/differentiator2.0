@@ -40,7 +40,6 @@ Node* make_talor(Node *const root, int decomp_degree, double step, Errors *const
 
     if (decomp_degree >= 0)
     {
-        //Node* new_new_node = make_talor(diff->Right, decomp_degree, step, error);
         Node* new_new_node = make_talor(diff, decomp_degree, step, error);
 
         Node* sum_node = make_node(OP, ADD, new_node, new_new_node, error);
