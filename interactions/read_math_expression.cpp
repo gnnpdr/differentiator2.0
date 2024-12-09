@@ -122,7 +122,6 @@ char* arithm_get_str (char** start_text, char* str)
     if(!text_ptr)
         text_ptr = strchr(*start_text, ARITHM_CLOSE_BRACE);
         
-
     text_ptr++;
     symb_amt = text_ptr - *start_text;
     char* open_ch = strchr(text_ptr, ARITHM_OPEN_BRACE);

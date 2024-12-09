@@ -2,10 +2,10 @@
 
 #include "get_database.h"
 
-static Errors count_file_size (const char *const name, size_t* size);
+static void count_file_size(const char *const name, size_t* size, Err_param *const error);
 
 
-void input_ctor (Input *const base_text, Errors *const error)
+void input_ctor (Input *const base_text, Err_param *const error)
 {
     assert(base_text);
     assert(error);
@@ -14,13 +14,13 @@ void input_ctor (Input *const base_text, Errors *const error)
     ALLOCATION_CHECK(name)
 
     char* text = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
-    ALLOCATION_CHECK(text)
+    ALLOCATION_CHECK(name)
 
     base_text->name = name;
     base_text->text = text;
 }
 
-void get_database_name(Input *const base_text, char **const argv, Errors *const error)
+void get_database_name(Input *const base_text, char **const argv, Err_param *const error)
 {
     assert(base_text);
     assert(argv);
@@ -34,7 +34,7 @@ void get_database_name(Input *const base_text, char **const argv, Errors *const 
     base_text->name = name;
 }
 
-void get_database_text (Input *const base_text, Errors *const error)
+void get_database_text (Input *const base_text, Err_param *const error)
 {
     assert(base_text);
     assert(error);
@@ -47,16 +47,14 @@ void get_database_text (Input *const base_text, Errors *const error)
 
     size_t size = 0;
 
-    *error = count_file_size(base_text->name, &size);
-    if(*error != ALL_RIGHT)
-        return;
+    count_file_size(base_text->name, &size, error);
+    RETURN_VOID
 
     char* text = base_text->text;
 
     size_t read_result = fread(text, sizeof(char), size, input_file);
     READ_CHECK
         
-
     int close_res = fclose(input_file);
     CLOSE_CHECK
 
@@ -64,22 +62,16 @@ void get_database_text (Input *const base_text, Errors *const error)
     base_text->size = size;
 }
 
-Errors count_file_size (const char *const name, size_t* size)
+void count_file_size(const char *const name, size_t* size, Err_param *const error)
 {
     assert(name);
     assert(size);
 
     struct stat file_info;
 
-    if (stat(name, &file_info) == -1)
-    {
-        printf("stat problem\n");
-        return STAT_ERROR;
-    }
+    STAT_CHECK(name)
 
     *size = file_info.st_size;
-
-    return ALL_RIGHT;
 }
 
 void input_dtor(Input* base_text)

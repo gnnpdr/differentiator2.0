@@ -8,7 +8,8 @@ static const size_t ANS_AMT = 2;
 enum Answer  //надо будет сделать файл для взаимодействия с юзером с этим енамом и функциями, связанными в выгрузкой в латех
 {
 	DIFF,
-	TALOR
+	TALOR,
+	KENNEDY
 };
 
 static const char* DO_DIFF = "diff";

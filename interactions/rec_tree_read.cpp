@@ -237,7 +237,7 @@ Node* get_trig (char* string, int* pointer, size_t op_ind, Errors *const error)
 
     return val;
 }
-
+//unary, binary operations
 Node* get_log(char* string, int* pointer, size_t op_ind, Errors *const error)
 {
     *pointer += strlen(operations[op_ind]->name);

@@ -1,6 +1,8 @@
 #ifndef _ERRORS_H_
 #define _ERRORS_H_
 
+#include <assert.h>
+
 enum Errors
 {
     ALL_RIGHT,
@@ -14,25 +16,99 @@ enum Errors
     STAT_ERROR,
     SPRINTF_ERROR,
     SYN_ERROR,
-    MATH_ERROR
+    MATH_ERROR,
+    TOKEN_ERROR
 };
+
+struct Err_param
+{
+    Errors err_num;
+
+    char* file;
+    char* func;
+    int line;
+};
+
+#define LOCATION_DEF char *const file, char *const func, int line
+#define LOCATION __FILE__, __FUNCTION__, __LINE__ 
+
+#define ERROR_CTOR  Err_param error = {};       \
+	                error.err_num = ALL_RIGHT;  
+
+
+#define ERROR(err_num)  do                                                          \
+                        {                                                           \
+                            fill_error(error, LOCATION, err_num);                   \
+                            return;                                                 \
+                        } while (0);
+
+#define MAIN_CHECK           do                                                                                    \
+                        {                                                                                       \
+                            if (error.err_num != ALL_RIGHT)                                                     \
+                            {                                                                                   \
+                                printf("you have problem number %d", error.err_num);                            \
+                                printf("in file %s, func %s, line %d\n", error.file, error.func, error.line);   \
+                                return;                                                                         \
+                            }                                                                                   \
+                        } while (0);    
+
+
+void fill_error(Err_param *const error, LOCATION_DEF, Errors err);
+
+#define RETURN_VOID     do                                      \
+                        {                                       \
+                            if (error->err_num != ALL_RIGHT)    \
+                                return;                         \
+                        }while(0);
+
+#define RETURN_BOOL     do                                      \
+                        {                                       \
+                            if (error->err_num != ALL_RIGHT)    \
+                                return false;                   \
+                        }while(0);
 
 #define FILE_CHECK(file)    do                                      \
                             {                                       \
                                 if (file == nullptr)                \
                                 {                                   \
-                                    printf("file wasn't opened\n"); \
-                                    *error = FILE_ERROR;            \
+                                    ERROR(FILE_ERROR)               \
                                     return;                         \
                                 }                                   \
                             }while(0);
+
+#define STAT_CHECK(name)        do                                      \
+                                {                                       \
+                                    if (stat(name, &file_info) == -1)   \
+                                    {                                   \
+                                        ERROR(STAT_ERROR)               \
+                                        return;                         \
+                                    }                                   \
+                                }while(0);
+
+
+#define CMD_CHECK               do                                       \
+                                {                                       \
+                                    if (system_res != 0)                \
+                                    {                                   \
+                                        ERROR(CMD_ERROR)                \
+                                        return;                         \
+                                    }                                   \
+                                }while(0);
+
+#define ALLOCATION_CHECK_RET(buf)   do                                      \
+                                    {                                       \
+                                        if (buf == nullptr)                 \
+                                        {                                   \
+                                            ERROR(ALLOCATION_ERROR)         \
+                                            return nullptr;                 \
+                                        }                                   \
+                                    }while(0);
 
 #define ALLOCATION_CHECK(buf) do                                    \
                             {                                       \
                                 if (buf == 0)                       \
                                 {                                   \
-                                    printf("no place\n");           \
-                                    *error = ALLOCATION_ERROR;      \
+                                    ERROR(ALLOCATION_ERROR)         \
                                     return;                         \
                                 }                                   \
                             }while(0);
@@ -41,7 +117,7 @@ enum Errors
                             {                                       \
                                 if (sprintf_res == -1)              \
                                 {                                   \
-                                    *error = SPRINTF_ERROR;         \
+                                    ERROR(SPRINTF_ERROR)            \
                                     return;                         \
                                 }                                   \
                             }while(0);
@@ -51,7 +127,7 @@ enum Errors
                             {                                    \
                                 if(name == nullptr)              \
                                 {                                \
-                                    *error =  CPY_ERROR;         \
+                                    ERROR(CPY_ERROR)             \
                                     return;                      \
                                 }                                \
                             }while(0);
@@ -60,7 +136,7 @@ enum Errors
                             {                                   \
                                 if (read_result != size)        \
                                 {                               \
-                                    *error = READ_ERROR;        \
+                                    ERROR(READ_ERROR)           \
                                     return;                     \
                                 }                               \
                             }while(0);
@@ -69,16 +145,11 @@ enum Errors
                             {                                   \
                                 if(close_res != 0)              \
                                 {                               \
-                                    *error = CLOSE_ERROR;       \
+                                    ERROR(CLOSE_ERROR)          \
                                     return;                     \
                                 }                               \
                             }while(0);
 
-#define CHECK               do                                  \
-                            {                                   \
-                                if(*error != ALL_RIGHT)         \
-                                    return;                     \
-                            }while(0);
 
 
 #endif //_ERRORS_H_

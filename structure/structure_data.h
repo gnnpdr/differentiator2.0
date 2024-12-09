@@ -5,21 +5,27 @@
 //------------------------CONST-----------------------------------
 
 static const size_t VAR_AMT =  1;
-static const size_t OP_AMT  =  9;
+static const size_t OP_AMT  =  15;
 static const char*  X_STR   = "x";  //pragma
 
 static const double START_VALUE =  0;
 static const double PI          = 3.14;  //ну надо было
 
-static const char*  ADD_STR = "+";
-static const char*  MUL_STR = "*";
-static const char*  DIV_STR = "/";
-static const char*  SUB_STR = "-";
-static const char*  POW_STR = "^";
-static const char*  LOG_STR = "log";
-static const char*  SIN_STR = "sin";
-static const char*  COS_STR = "cos";
-static const char*  TG_STR  = "tg";
+static const char*  ADD_STR    = "+";
+static const char*  MUL_STR    = "*";
+static const char*  DIV_STR    = "/";
+static const char*  SUB_STR    = "-";
+static const char*  POW_STR    = "^";
+static const char*  LOG_STR    = "log";
+static const char*  LN_STR     = "ln";
+static const char*  SIN_STR    = "sin";
+static const char*  COS_STR    = "cos";
+static const char*  TAN_STR    = "tan";
+static const char*  END_STR    = "$";
+static const char*  O_BR_STR   = "(";
+static const char*  C_BR_STR   = ")";
+static const char*  FO_BR_STR  = "{";
+static const char*  FC_BR_STR  = "}";
 
 //-----------------------ENUM-------------------------------------
 
@@ -31,7 +37,7 @@ enum Variable
 enum Type
 {
 	NUM = 0,
-	VAR = 1,
+	ID = 1,
 	OP  = 2
 };
 
@@ -43,14 +49,20 @@ enum Operation
 	SUB = 3,
 	POW = 4,
 	LOG = 5,
-	SIN = 6,
-	COS = 7,
-	TG  = 8
+	LN  = 6,
+	SIN = 7,
+	COS = 8,
+	TAN = 9,
+	END = 10,
+	O_BR = 11,
+	C_BR = 12,
+	FO_BR = 13,
+	FC_BR = 14
 };
 
 //----------------------STRUCT-----------------------------------
 
-struct Node
+struct Node  //union
 {
 	Type type;
 	double value;
@@ -86,9 +98,16 @@ static const struct OperationParameters DIV_STRUCT = {DIV_STR, DIV};
 static const struct OperationParameters SUB_STRUCT = {SUB_STR, SUB};
 static const struct OperationParameters POW_STRUCT = {POW_STR, POW};
 static const struct OperationParameters LOG_STRUCT = {LOG_STR, LOG};
+static const struct OperationParameters  LN_STRUCT = { LN_STR, LOG};
 static const struct OperationParameters SIN_STRUCT = {SIN_STR, SIN};
 static const struct OperationParameters COS_STRUCT = {COS_STR, COS};
-static const struct OperationParameters  TG_STRUCT = { TG_STR,  TG};
+static const struct OperationParameters TAN_STRUCT = {TAN_STR, TAN};
+
+static const struct OperationParameters END_STRUCT   = {END_STR,   END  };
+static const struct OperationParameters O_BR_STRUCT  = {O_BR_STR,  O_BR };
+static const struct OperationParameters C_BR_STRUCT  = {C_BR_STR,  C_BR };
+static const struct OperationParameters FO_BR_STRUCT = {FO_BR_STR, FO_BR};
+static const struct OperationParameters FC_BR_STRUCT = {FC_BR_STR, FC_BR};
 
 static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&MUL_STRUCT,
@@ -96,9 +115,15 @@ static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&SUB_STRUCT,
 																&POW_STRUCT,
 																&LOG_STRUCT,
+																&LN_STRUCT ,
 																&SIN_STRUCT,
 																&COS_STRUCT,
-																&TG_STRUCT};
+																&TAN_STRUCT,
+																&END_STRUCT,
+																&O_BR_STRUCT,
+																&C_BR_STRUCT,
+																&FO_BR_STRUCT,
+																&FC_BR_STRUCT,};
 
 //--------------------DEFINE------------------------------------------
 

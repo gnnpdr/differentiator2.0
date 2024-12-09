@@ -2,16 +2,16 @@
 
 #include "draw_tree.h"
 
-static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Errors *const error);
+static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Err_param *const error);
 
-static void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Errors *const error);
-static void make_connections(const Node* const node, char* const input_file_data, Errors *const error);
+static void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Err_param *const error);
+static void make_connections(const Node* const node, char* const input_file_data, Err_param *const error);
 
-static void fill_input_file(const char* const  input_file_name, const char* const input_file_data, Errors *const error);
+static void fill_input_file(const char* const  input_file_name, const char* const input_file_data, Err_param *const error);
 
-static void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, Errors *const error);
+static void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, Err_param *const error);
 
-void graph_dump(Node* const node, Node* const definite_node, Errors *const error)
+void graph_dump(Node* const node, Node* const definite_node, Err_param *const error)
 {
     assert(node);
     assert(definite_node);
@@ -32,28 +32,27 @@ void graph_dump(Node* const node, Node* const definite_node, Errors *const error
     SPRINTF_CHECK
 
     make_nodes(node, definite_node, input_file_data, error);
-    CHECK
+    RETURN_VOID
 
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n", input_file_data);
-    
     SPRINTF_CHECK
 
     make_connections(node, input_file_data, error);
-    CHECK
+    RETURN_VOID
 
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n}\n", input_file_data);
     SPRINTF_CHECK
     fill_input_file(input_file_name, input_file_data, error);
-    CHECK
+    RETURN_VOID
 
     do_graph_cmd(input_file_name, output_file_name, error);
-    CHECK
+    RETURN_VOID
 
     enter_cnt++;
 }
 
 
-void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Errors *const error)
+void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Err_param *const error)
 {
     assert(input_file_name);
     assert(output_file_name);
@@ -75,7 +74,7 @@ void make_file_names(char* const input_file_name, char* const output_file_name, 
 
 
 //make_nudes
-void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Errors *const error) 
+void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Err_param *const error) 
 {
     assert(node);
     assert(input_file_data);
@@ -129,18 +128,18 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
     if (node->Left)
     {
         make_nodes(node->Left, definite_node, input_file_data, error);
-        CHECK
+        RETURN_VOID
     }
         
     if (node->Right)
     {
         make_nodes(node->Right, definite_node, input_file_data, error);
-        CHECK
+        RETURN_VOID
     }
 }
 
 
-void make_connections(const Node* const node, char* const input_file_data, Errors *const error)
+void make_connections(const Node* const node, char* const input_file_data, Err_param *const error)
 {
     assert(node);
     assert(input_file_data);
@@ -165,7 +164,7 @@ void make_connections(const Node* const node, char* const input_file_data, Error
         SPRINTF_CHECK
 
         make_connections(node->Left, input_file_data, error);
-        CHECK
+        RETURN_VOID
     }
 
     if (node->Right)
@@ -175,11 +174,11 @@ void make_connections(const Node* const node, char* const input_file_data, Error
         SPRINTF_CHECK
 
         make_connections(node->Right, input_file_data, error);
-        CHECK
+        RETURN_VOID
     }
 }
 
-void fill_input_file(const char* const  input_file_name, const char* const input_file_data, Errors *const error)
+void fill_input_file(const char* const  input_file_name, const char* const input_file_data, Err_param *const error)
 {
     assert(input_file_name);
     assert(input_file_data);
@@ -195,7 +194,7 @@ void fill_input_file(const char* const  input_file_name, const char* const input
     CLOSE_CHECK
 }
 
-void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, Errors *const error)
+void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, Err_param *const error)
 {
     assert(input_file_name);
     assert(output_file_name);
@@ -206,9 +205,5 @@ void do_graph_cmd(const char* const input_file_name, const char* const output_fi
     SPRINTF_CHECK
 
     int system_res = system(cmd);
-    if (system_res != 0)
-    {
-        *error = CMD_ERROR;
-        return;
-    }
+    CMD_CHECK
 }

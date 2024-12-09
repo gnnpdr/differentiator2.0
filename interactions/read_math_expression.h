@@ -7,7 +7,7 @@
 
 static const char ARITHM_OPEN_BRACE  = '(';
 static const char ARITHM_CLOSE_BRACE = ')';
-static const int ERROR_VALUE = -13;
+//static const int ERROR_VALUE = -13;
 
 static const double EXP = 2.72;
 

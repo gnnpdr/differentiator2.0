@@ -24,9 +24,9 @@ struct Input
     size_t node_amt;
 };
 
-void input_ctor (Input *const base_text, Errors *const error);
-void get_database_name(Input *const base_text, char **const argv, Errors *const error);
-void get_database_text (Input *const base_text, Errors *const error);
+void input_ctor (Input *const base_text, Err_param *const error);
+void get_database_name(Input *const base_text, char **const argv, Err_param *const error);
+void get_database_text (Input *const base_text, Err_param *const error);
 void input_dtor(Input* base_text);
 
 #endif //_BASE_H_
