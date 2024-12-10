@@ -4,7 +4,7 @@
 
 static int find_action (char *const str);
 
-void choose_do_calc(Tree* the_tree, Errors* error)
+void choose_do_calc(Tree* the_tree, Err_param* error)
 {
     Stack stk = {};
 	stk_ctor(&stk, error);
@@ -15,11 +15,7 @@ void choose_do_calc(Tree* the_tree, Errors* error)
 
 	int action = find_action (answer);
     if (action == ERROR_VALUE)
-    {
-        printf("there is no such option\n");
-        *error = SYN_ERROR;
-        return;
-    }
+    ERROR(SYN_ERROR)
 
 	Node* res_tree = nullptr;
 	if (action == DIFF)  //можно ещ едобавить вопрос про количество повторений дифференцирования и 

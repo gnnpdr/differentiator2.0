@@ -5,8 +5,8 @@
 #include "..\tree_lib\get_database.h"
 #include "..\stack_lib\stk.h"
 
-static const size_t TOKEN_AMT = 20;
-static const size_t ID_AMT = 20;
+static const size_t TOKEN_AMT = 10;
+static const size_t ID_AMT = 10;
 static const size_t ERROR_VALUE_SIZE_T = 888;
 static const int ERROR_VALUE = -13;
 
@@ -26,6 +26,12 @@ struct Id
     //доп инфа
 };
 
-void lex_analysis(Input *const base_text, Err_param* error);
+Token* tokens_ctor(Err_param *const error);
+Id* id_ctor(Err_param *const error);
+
+void tokens_dtor(Token *const tokens);
+void ids_dtor(Id *const ids);
+
+void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Err_param* error);
 
 #endif //_LEX_H_

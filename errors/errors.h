@@ -24,12 +24,12 @@ struct Err_param
 {
     Errors err_num;
 
-    char* file;
-    char* func;
+    const char* file;
+    const char* func;
     int line;
 };
 
-#define LOCATION_DEF char *const file, char *const func, int line
+#define LOCATION_DEF const char *const file, const char *const func, int line
 #define LOCATION __FILE__, __FUNCTION__, __LINE__ 
 
 #define ERROR_CTOR  Err_param error = {};       \
@@ -39,7 +39,6 @@ struct Err_param
 #define ERROR(err_num)  do                                                          \
                         {                                                           \
                             fill_error(error, LOCATION, err_num);                   \
-                            return;                                                 \
                         } while (0);
 
 #define MAIN_CHECK           do                                                                                    \
@@ -48,17 +47,26 @@ struct Err_param
                             {                                                                                   \
                                 printf("you have problem number %d", error.err_num);                            \
                                 printf("in file %s, func %s, line %d\n", error.file, error.func, error.line);   \
-                                return;                                                                         \
+                                return 1;                                                                         \
                             }                                                                                   \
                         } while (0);    
-
-
-void fill_error(Err_param *const error, LOCATION_DEF, Errors err);
 
 #define RETURN_VOID     do                                      \
                         {                                       \
                             if (error->err_num != ALL_RIGHT)    \
                                 return;                         \
+                        }while(0);
+
+#define RETURN_PTR      do                                      \
+                        {                                       \
+                            if (error->err_num != ALL_RIGHT)    \
+                                return nullptr;                 \
+                        }while(0);
+
+#define RETURN_SIZE_T   do                                      \
+                        {                                       \
+                            if (error->err_num != ALL_RIGHT)    \
+                                return 1;                       \
                         }while(0);
 
 #define RETURN_BOOL     do                                      \
@@ -150,6 +158,6 @@ void fill_error(Err_param *const error, LOCATION_DEF, Errors err);
                                 }                               \
                             }while(0);
 
-
+void fill_error(Err_param *const error, LOCATION_DEF, Errors err);
 
 #endif //_ERRORS_H_

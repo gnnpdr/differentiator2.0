@@ -7,7 +7,6 @@ static const size_t FIRST_PR_AMT = 2;
 static const size_t SEC_PR_AMT = 3;
 static const size_t BINARY_OP_AMT = 1;
 static const size_t UNARY_OP_AMT = 4;
-
 static const double EXP = 2.72;
 
 static const struct OperationParameters first_pr [FIRST_PR_AMT]  = {ADD_STRUCT,

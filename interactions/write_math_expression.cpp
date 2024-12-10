@@ -2,28 +2,28 @@
 
 #include "write_math_expression.h"
 
-static char* get_node (Node *const node, Stack *const stk, char *const str, Errors *const error);
-static void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *const error);
-static void latex_printf_features (int op_num, bool need_brace, char *const str, char *const left, char *const right, Errors *const error);
+static char* get_node (Node *const node, Stack *const stk, char *const str, Err_param *const error);
+static void get_op_node (Stack *const stk, Node *const node, char *const str, Err_param *const error);
+static void latex_printf_features (int op_num, bool need_brace, char *const str, char *const left, char *const right, Err_param *const error);
 static bool compare_op_priority(Stack *const stk, char* const str, Node *const node);
 
-static Node* convert_const (Node* node, size_t *const new_change, Errors *const error, Node* root);
+static Node* convert_const (Node* node, size_t *const new_change, Err_param *const error, Node* root);
 static Node* calculations (Node* node, size_t *const new_change);
 static Node* make_ln(Node* node, size_t *const new_change);
 
-static Node* check_node_add (Node* node, Errors *const error, size_t *const new_change);
-static Node* check_node_div (Node* node, Errors *const error, size_t *const new_change);
-static Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change);
-static Node* check_node_pow (Node* node, Errors *const error, size_t *const new_change);
+static Node* check_node_add (Node* node, Err_param *const error, size_t *const new_change);
+static Node* check_node_div (Node* node, Err_param *const error, size_t *const new_change);
+static Node* check_node_mul (Node* node, Err_param *const error, size_t *const new_change);
+static Node* check_node_pow (Node* node, Err_param *const error, size_t *const new_change);
 
-static Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change);
-static Node* check_node_cos (Node* node, Errors *const error, size_t *const new_change);
-static Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change);
+static Node* check_node_sin (Node* node, Err_param *const error, size_t *const new_change);
+static Node* check_node_cos (Node* node, Err_param *const error, size_t *const new_change);
+static Node* check_node_tg (Node* node, Err_param *const error, size_t *const new_change);
 
 static void compare_branches(Node *const node1, Node *const node2, bool *const is_equal);
 static bool compare_nodes (Node *const node1, Node *const node2);
 
-Node* write_math_expression(Node* root, Stack *const stk, Errors *const error)
+Node* write_math_expression(Node* root, Stack *const stk, Err_param *const error)
 {
     assert(root);
     assert(stk);
@@ -43,16 +43,16 @@ Node* write_math_expression(Node* root, Stack *const stk, Errors *const error)
     }
         
     char* str = (char*)calloc(MAX_STR_LEN, sizeof(char));
-    if (str == 0)
+    ALLOCATION_CHECK_RET(str)
+    /*if (str == 0)
     {                              
         printf("no place\n");      
         *error = ALLOCATION_ERROR; 
         return nullptr;                    
-    }   
+    }   */
     
     get_node(root, stk, str, error);
-    if(*error != ALL_RIGHT)
-        return nullptr; 
+    RETURN_PTR
 
     printf("THE STR %s\n", str);
 
@@ -61,7 +61,7 @@ Node* write_math_expression(Node* root, Stack *const stk, Errors *const error)
     return root;
 }
 
-char* get_node(Node *const node, Stack *const stk, char *const str, Errors *const error)
+char* get_node(Node *const node, Stack *const stk, char *const str, Err_param *const error)
 {
     assert(node);
     assert(stk);
@@ -73,19 +73,18 @@ char* get_node(Node *const node, Stack *const stk, char *const str, Errors *cons
     if (node->type == OP)
     {
         get_op_node (stk, node, str, error);
-        if (*error != ALL_RIGHT)
-            return nullptr;
+        RETURN_PTR
     }
     else if (node->type == NUM)
         snprintf(str, MAX_STR_LEN, "%lg", node->value);
 
-    else if (node->type == VAR)
+    else if (node->type == ID)
         snprintf(str, MAX_STR_LEN, "%s", variables[(int)node->value]->name);
 
     return str;
 }
 
-void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *const error)
+void get_op_node (Stack *const stk, Node *const node, char *const str, Err_param *const error)
 {
     assert(stk);
     assert(node);
@@ -101,25 +100,25 @@ void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *c
     ALLOCATION_CHECK(right)
 
     stk_push(stk, (stack_element_t)node->value, error);
-    CHECK
+    RETURN_VOID
 
     if(node->Left)
     {
         get_node(node->Left, stk, left, error);
-        CHECK
+        RETURN_VOID
     }
         
     if(node->Right)
     {
         get_node(node->Right, stk, right, error);
-        CHECK
+        RETURN_VOID
     }
     
     bool need_brace = compare_op_priority(stk, left, node);  //над скобками я еще подумаю 
     int op_num = 0;
 
     stk_pop(stk, &op_num, error);
-    CHECK
+    RETURN_VOID
 
     latex_printf_features (op_num, need_brace, str, left, right, error);
     
@@ -127,7 +126,7 @@ void get_op_node (Stack *const stk, Node *const node, char *const str, Errors *c
     free(right);
 }
 
-void latex_printf_features (int op_num, bool need_brace, char *const str, char *const left, char *const right, Errors *const error)
+void latex_printf_features (int op_num, bool need_brace, char *const str, char *const left, char *const right, Err_param *const error)
 {
     assert(str);
     assert(left);
@@ -204,7 +203,7 @@ bool compare_op_priority(Stack *const stk, char* const str, Node *const node)
     return need_brace;
 }
 
-Node* convert_const (Node* node, size_t *const new_change, Errors *const error, Node* root)
+Node* convert_const (Node* node, size_t *const new_change, Err_param *const error, Node* root)
 {
     assert(node);
     assert(error);
@@ -247,7 +246,7 @@ Node* convert_const (Node* node, size_t *const new_change, Errors *const error, 
     return node;
 }
 
-Node* check_node_add (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_add (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -277,7 +276,7 @@ Node* check_node_add (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-Node* check_node_div (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_div (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -317,7 +316,7 @@ Node* check_node_div (Node* node, Errors *const error, size_t *const new_change)
     }
     else if (node->Right->value == 0 && node->Right->type == NUM)
     {
-        *error = MATH_ERROR;
+        ERROR(MATH_ERROR)
         return nullptr;
     }
 
@@ -356,7 +355,7 @@ bool compare_nodes (Node *const node1, Node *const node2)
     return is_equal;
 }
 
-Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_mul (Node* node, Err_param *const error, size_t *const new_change)
 {
     if ((node->Left->value == 0 && node->Left->type == NUM) || (node->Right->value == 0 && node->Right->type == NUM))
     {
@@ -409,7 +408,7 @@ Node* check_node_mul (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-Node* check_node_pow (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_pow (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -482,7 +481,7 @@ Node* make_ln(Node* node, size_t *const new_change)
     return node;
 }
 
-Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_sin (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -523,7 +522,7 @@ Node* check_node_sin (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-Node* check_node_cos (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_cos (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -565,7 +564,7 @@ Node* check_node_cos (Node* node, Errors *const error, size_t *const new_change)
     return node;
 }
 
-Node* check_node_tg (Node* node, Errors *const error, size_t *const new_change)
+Node* check_node_tg (Node* node, Err_param *const error, size_t *const new_change)
 {
     assert(node);
     assert(error);
@@ -597,7 +596,7 @@ Node* calculations (Node* node, size_t *const new_change)
     if(node->Right)
         calculations (node->Right, new_change);
         
-    if (node->type == VAR)
+    if (node->type == ID)
         return node;
         
 

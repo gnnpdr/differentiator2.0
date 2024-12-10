@@ -2,10 +2,10 @@
 
 #include "talor.h"
 
-static void func_dependency (Node *const node, double var_val, Errors *const error);
+static void func_dependency (Node *const node, double var_val, Err_param *const error);
 static size_t make_fact(size_t num);
 
-Node* make_talor(Node *const root, int decomp_degree, double step, Errors *const error)
+Node* make_talor(Node *const root, int decomp_degree, double step, Err_param *const error)
 {
     assert(root);
     assert(error);
@@ -62,7 +62,7 @@ size_t make_fact(size_t num)
     return fact;
 }
 
-void func_dependency (Node *const node, double var_val, Errors *const error)
+void func_dependency (Node *const node, double var_val, Err_param *const error)
 {
     if (node->Left)
         func_dependency (node->Left, var_val, error);
@@ -70,7 +70,7 @@ void func_dependency (Node *const node, double var_val, Errors *const error)
     if (node->Right)
         func_dependency (node->Right, var_val, error);
 
-    if (node->type == VAR)
+    if (node->type == ID)
     {
         node->type = NUM;
         node->value = var_val;

@@ -25,15 +25,26 @@ int main(int argc, char** argv)
 	MAIN_CHECK 
 
 	Node* root = node_ctor();
-	//проверка
+	MAIN_CHECK  //сделать проверку на nullptr и выделить ей отдельный макрос
+
+	Token* tokens = tokens_ctor(&error);
+    MAIN_CHECK 
+    Id* ids = id_ctor(&error);
+    MAIN_CHECK 
+
+	lex_analysis(tokens, ids, &base_text, &error);
+	root = syn_analysis(tokens, &error);
 
 	Tree the_tree = {};
 
 	//root = read_tree_rec(&base_text, &error);
 	tree_ctor (&the_tree, root);
+	graph_dump(root, root, &error);
 
 	//choose_do_calc(&the_tree, &error);
 
+	tokens_dtor(tokens);
+	ids_dtor(ids);
 	tree_dtor(the_tree.root);
 	input_dtor(&base_text);
 }

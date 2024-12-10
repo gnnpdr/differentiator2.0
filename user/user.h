@@ -29,5 +29,5 @@ static const struct AnswerParameters* answers [ANS_AMT] = {&DIFF_STRUCT,
 														   &TALOR_STRUCT};
 
 
-void choose_do_calc(Tree* the_tree, Errors* error);                                                     
+void choose_do_calc(Tree* the_tree, Err_param* error);                                                     
 #endif //_USER_H_

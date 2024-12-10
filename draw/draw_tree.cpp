@@ -2,6 +2,8 @@
 
 #include "draw_tree.h"
 
+//добавлять сюда в параметры массив айди или делать его глобальным?
+
 static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Err_param *const error);
 
 static void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Err_param *const error);
@@ -32,7 +34,10 @@ void graph_dump(Node* const node, Node* const definite_node, Err_param *const er
     SPRINTF_CHECK
 
     make_nodes(node, definite_node, input_file_data, error);
+    
     RETURN_VOID
+
+    //printf("NODES %s\n", input_file_data);
 
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n", input_file_data);
     SPRINTF_CHECK
@@ -40,10 +45,14 @@ void graph_dump(Node* const node, Node* const definite_node, Err_param *const er
     make_connections(node, input_file_data, error);
     RETURN_VOID
 
+    //printf("CONNECTIONS %s\n", input_file_data);
+
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\n}\n", input_file_data);
     SPRINTF_CHECK
     fill_input_file(input_file_name, input_file_data, error);
     RETURN_VOID
+
+    //printf("RESULT %s\n", input_file_data);
 
     do_graph_cmd(input_file_name, output_file_name, error);
     RETURN_VOID
@@ -99,7 +108,7 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
                 input_file_data, node, OP_DEF, operations[(int)node->value]->name, node->Left, node->Right);
             SPRINTF_CHECK
         }
-        else if (node->type == VAR)
+        else if (node->type == ID)
         {
             sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
                 input_file_data, node, VAR_DEF, variables[(int)node->value]->name, node->Left, node->Right);
@@ -112,7 +121,7 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
             input_file_data, node, NUM_DEF, node->value, node->Left, node->Right);
         SPRINTF_CHECK
     }
-    else if (node->type == VAR)
+    else if (node->type == ID)
     {
         sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#084C61\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, VAR_DEF, variables[(int)node->value]->name, node->Left, node->Right);

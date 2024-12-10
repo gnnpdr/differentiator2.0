@@ -11,8 +11,6 @@ Node* node_ctor ()
 
 Node* make_node(Type type, double value, Node* Left, Node* Right, Err_param *const error)
 {
-	assert(Left);
-	assert(Right);
 	assert(error);
 
 	Node* node = node_ctor();

@@ -22,13 +22,21 @@ Node* syn_analysis(Token *const tokens, Err_param *const error)
 
     Node* root = get_expression(tokens, &pointer, error);
 
+    printf("HERE\n");
+    printf("type %d, value %d\n", tokens[pointer].type, tokens[pointer].value);
+    printf("ERROR HERE %d\n", error->err_num);
+
     if (tokens[pointer].type != OP && tokens[pointer].value != END)
     {
+        printf("ERROR\n");
         ERROR(SYN_ERROR)
         return nullptr;
     }
 
     pointer++;
+
+    printf("root %p\n", root);
+    //graph_dump(root, root, error);
 
     return root;
 }
@@ -98,6 +106,8 @@ Node* get_brace (Token *const tokens, size_t* pointer, Err_param *const error)
 
     Node* val = nullptr;
 
+    printf("type %d\n", tokens[*pointer].type);
+
     if (tokens[*pointer].type == OP)
     {
         bool unary  = op_match(tokens[*pointer], unary_op, UNARY_OP_AMT);
@@ -105,11 +115,14 @@ Node* get_brace (Token *const tokens, size_t* pointer, Err_param *const error)
 
         if (tokens[*pointer].value == O_BR)
         {
+            printf("O BRACE\n");
             (*pointer)++;
 
             val = get_expression(tokens, pointer, error);
 
-            if (tokens[*pointer].type == OP && tokens[*pointer].value == C_BR)
+            printf("pointer %d, type %d\n", *pointer, tokens[*pointer].type);
+
+            if (tokens[*pointer].type != OP && tokens[*pointer].value != C_BR)
             {
                 ERROR(SYN_ERROR)
                 return nullptr;
@@ -123,7 +136,7 @@ Node* get_brace (Token *const tokens, size_t* pointer, Err_param *const error)
 
             val = get_expression(tokens, pointer, error);
 
-            if (tokens[*pointer].type == OP && tokens[*pointer].value == FC_BR)
+            if (tokens[*pointer].type != OP && tokens[*pointer].value != FC_BR)
             {
                 ERROR(SYN_ERROR)
                 return nullptr;
@@ -131,12 +144,14 @@ Node* get_brace (Token *const tokens, size_t* pointer, Err_param *const error)
 
             (*pointer)++;
         }
-        else if (binary_op)
+        else if (binary)
         {
+            printf("BINARY\n");
             val = get_binary(tokens, pointer, error);
         }
-        else if (unary_op)
+        else if (unary)
         {
+            printf("UNARY\n");
             val = get_unary(tokens, pointer, error);
         }
         //else ??   
@@ -144,7 +159,10 @@ Node* get_brace (Token *const tokens, size_t* pointer, Err_param *const error)
     else if (tokens[*pointer].type == NUM)
         val = get_num(tokens, pointer, error);
     else 
+    {
+        printf("GET ID\n");
         val = get_id(tokens, pointer, error);
+    }
         
     return val;
 }
@@ -157,6 +175,8 @@ Node* get_unary(Token *const tokens, size_t *const pointer, Err_param *const err
     size_t op = tokens[*pointer].value;
     (*pointer)++;
 
+    printf("op %d\n", op);
+
     Node* val = get_expression(tokens, pointer, error);
 
     if (op == LN)
@@ -166,6 +186,8 @@ Node* get_unary(Token *const tokens, size_t *const pointer, Err_param *const err
     }
     else
         val = make_node(OP, op, nullptr, val, error);
+
+    //graph_dump(val, val, error);
 
     return val;
 }
@@ -206,7 +228,9 @@ Node* get_id(Token *const token, size_t *const pointer, Err_param *const error)
     double id_num = token[*pointer].value;
     (*pointer)++;
 
-    Node* val = make_node(NUM, id_num, nullptr, nullptr, error);
+    Node* val = make_node(ID, id_num, nullptr, nullptr, error);
+
+    //graph_dump(val, val, error);
 
     return val;
 }

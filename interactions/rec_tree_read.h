@@ -1,4 +1,4 @@
-#ifndef _REC_READ_H_
+/*#ifndef _REC_READ_H_
 #define _REC_READ_H_
 
 #include "read_math_expression.h"
@@ -8,4 +8,4 @@
 
 Node* read_tree_rec (Input *const base_text, Errors* error);
 
-#endif //_REC_READ_H_
+#endif //_REC_READ_H_*/

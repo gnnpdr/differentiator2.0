@@ -31,10 +31,10 @@ struct Stack
     size_t capacity = START_STK_SIZE;
 };
 
-void stk_ctor(Stack *const stk, Errors *const error);
+void stk_ctor(Stack *const stk, Err_param *const error);
 
-void stk_push(Stack *const stk, stack_element_t element, Errors *const error);
-void stk_pop(Stack *const stk, stack_element_t* elem, Errors *const error);
+void stk_push(Stack *const stk, stack_element_t element, Err_param *const error);
+void stk_pop(Stack *const stk, stack_element_t* elem, Err_param *const error);
 
 void stk_dtor(Stack *const stk);
 

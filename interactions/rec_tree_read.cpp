@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 
 #include "rec_tree_read.h"
 
@@ -258,4 +258,4 @@ Node* get_log(char* string, int* pointer, size_t op_ind, Errors *const error)
     val = make_node(OP, LOG, base, val, error);
 
     return val;
-}
+}*/

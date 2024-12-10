@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 
 #include "read_math_expression.h"
 
@@ -178,4 +178,4 @@ int get_op_ind(char* str)
     }
 
     return op_num;
-}
+}*/

@@ -2,11 +2,9 @@
 
 #include "lex_analysis.h"
 
-static Token* tokens_ctor(Err_param *const error);
 static void make_token(Token *const tokens, Type type, double val, Err_param *const error);
 static int find_free_token(Token *const tokens, Err_param *const error);
 
-static Id* id_ctor(Err_param *const error);
 static size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const error);
 static int find_free_id(Id *const ids, Err_param *const error);
 
@@ -15,18 +13,13 @@ static bool get_op(char *const text, size_t *const pointer, Token *const tokens,
 static size_t find_match(char *const start_address, size_t len);
 static void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, Err_param *const error);
 
-void lex_analysis(Input *const base_text, Err_param* error)
+void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Err_param* error)
 {
     assert(base_text);
     assert(error);
 
     char* text = base_text->text;
-
-    Token* tokens = tokens_ctor(error);
-    RETURN_VOID
-
-    Id* ids = id_ctor(error);
-    RETURN_VOID
+    printf("TEXT\n%s\n---------\n", text);
 
     size_t pointer = 0;
     size_t size = base_text->size;
@@ -36,16 +29,48 @@ void lex_analysis(Input *const base_text, Err_param* error)
     {
         bool is_func = false;
 
+        while (isspace(symb))
+            pointer++;
+
+        symb = text[pointer];
+
+        printf("symb %c\n", symb);
         if (symb >= '0' && symb <= '9')
+        {
+            printf("GET NUM\n");
             get_num(text, &pointer, tokens, error);
+            continue;
+        }
+            
         else 
+        {
+            printf("GET OP\n");
             is_func = get_op(text, &pointer, tokens, error);
+        }
+            
         
         if (!is_func)
+        {
+            printf("GET ID\n");
             get_id(text, ids, &pointer, tokens, error);
-
+        }
+            
         RETURN_VOID
     }
+
+    printf("TOKENS\n");
+    for (int i = 0; i < TOKEN_AMT; i++)
+    {
+        printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
+    }
+    printf("---------------\n");
+
+    printf("IDS\n");
+    for (int i = 0; i < ID_AMT; i++)
+    {
+        printf("num %d, str %s, len %d\n", i, ids[i].start_address, ids[i].len);
+    }
+    printf("---------------\n");
 }
 
 //------------------TOKENS------------------------------
@@ -68,6 +93,7 @@ void make_token(Token *const tokens, Type type, double val, Err_param *const err
     assert(error);
 
     size_t ind = find_free_token(tokens, error);
+    //printf("free token %d\n", ind);
     RETURN_VOID
 
     tokens[ind].type = type;
@@ -99,13 +125,18 @@ int find_free_token(Token *const tokens, Err_param *const error)
     return free_ind;
 }
 
+void tokens_dtor(Token *const tokens)
+{
+    free(tokens);
+}
+
 //-------------------------IDS--------------------------------
 Id* id_ctor(Err_param *const error)
 {
     assert(error);
 
     Id* ids = (Id*)calloc(ID_AMT, sizeof(Id));
-    ALLOCATION_CHECK(ids)
+    ALLOCATION_CHECK_RET(ids)
 
     for (int i = 0; i < ID_AMT; i++)
         ids[i].len = ERROR_VALUE_SIZE_T;
@@ -120,7 +151,7 @@ size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const err
     assert(error);
 
     size_t free_ind = find_free_id(ids, error);
-    RETURN_VOID
+    RETURN_SIZE_T
 
     ids[free_ind].len = len;
     ids[free_ind].start_address = text;
@@ -153,6 +184,10 @@ int find_free_id(Id *const ids, Err_param *const error)
     return free_ind;
 }
 
+void ids_dtor(Id *const ids)
+{
+    free(ids);
+}
 
 //----------------------LEX_ANALYSIS-------------------------
 void get_num(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error)
@@ -205,12 +240,20 @@ bool get_op(char *const text, size_t *const pointer, Token *const tokens, Err_pa
 
     size_t len = 0;
     char* start_address = text + *pointer;
+    ///printf("FROM START POINTER %s\n", start_address);
 
     while (isalpha(*(start_address + len)))
         len++;
+
+    if (len == 0)
+    {
+        len = 1;  //это тот случай, когда операция - символ. Надо, чтобы брался только один, иначен случаи типа )$ не проходят
+    }
         
+    printf("len %d\n", len);
 
     size_t op_ind = find_match(start_address, len);
+    printf("op ind %d\n", op_ind);
     if (op_ind == ERROR_VALUE_SIZE_T)
         return false;
     
@@ -252,10 +295,15 @@ void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const
     size_t len = 0;
     char* start_address = text + *pointer;
 
+    printf("%s\n", start_address);
+
     while (isalpha(*(start_address + len)))
         len++;
+
+    printf("len %d\n", len);
     
-    size_t id_ind = make_id(ids, len, text, error);
+    size_t id_ind = make_id(ids, len, start_address, error);
+    printf("id ind %d\n", id_ind);
     RETURN_VOID
 
     make_token(tokens, ID, id_ind, error);

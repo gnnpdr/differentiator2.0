@@ -2,11 +2,11 @@
 
 #include "stk.h"
 
-static void change_capacity(Stack *const stk, Errors *const error);
+static void change_capacity(Stack *const stk, Err_param *const error);
 
 //---------------------CTOR-DTOR-----------------------------------------------------------------------
 
-void stk_ctor(Stack *const stk, Errors *const error)
+void stk_ctor(Stack *const stk, Err_param *const error)
 {
     assert(error);
     assert(stk);
@@ -46,7 +46,7 @@ void stk_dtor(Stack *const stk)
 //------------FUNCTIONS-------------------------------------------------------------------------------------------------
 
 
-void stk_push(Stack *const stk, stack_element_t element, Errors *const error)
+void stk_push(Stack *const stk, stack_element_t element, Err_param *const error)
 {
     size_t size     = stk->size;
     size_t capacity = stk->capacity;
@@ -54,7 +54,7 @@ void stk_push(Stack *const stk, stack_element_t element, Errors *const error)
     if (size >= capacity)
     {
         change_capacity(stk, error);
-        CHECK
+        RETURN_VOID
     }
     
     stack_element_t* data = stk->data;
@@ -66,7 +66,7 @@ void stk_push(Stack *const stk, stack_element_t element, Errors *const error)
 }
 
 
-void change_capacity(Stack *const stk, Errors *const error)
+void change_capacity(Stack *const stk, Err_param *const error)
 {
     size_t size = stk->size;
     size_t capacity = stk->capacity;
@@ -89,7 +89,7 @@ void change_capacity(Stack *const stk, Errors *const error)
     stk->data = data; 
 }
 
-void stk_pop(Stack *const stk, stack_element_t* elem, Errors *const error)
+void stk_pop(Stack *const stk, stack_element_t* elem, Err_param *const error)
 {
     size_t size = stk->size;
     size_t capacity = stk->capacity;
@@ -97,7 +97,7 @@ void stk_pop(Stack *const stk, stack_element_t* elem, Errors *const error)
     if (size == (capacity / DOUBLE_DELTA) && size > MIN_STK_SIZE)
     {
         change_capacity(stk, error);
-        CHECK
+        RETURN_VOID
     }
 
     stack_element_t* data = stk->data;
