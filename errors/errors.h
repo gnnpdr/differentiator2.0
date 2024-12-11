@@ -130,6 +130,14 @@ struct Err_param
                                 }                                   \
                             }while(0);
 
+#define SPRINTF_CHECK_NULL do                                       \
+                            {                                       \
+                                if (sprintf_res == -1)              \
+                                {                                   \
+                                    ERROR(SPRINTF_ERROR)            \
+                                    return nullptr;                 \
+                                }                                   \
+                            }while(0);
 
 #define CPY_CHECK(name)     do                                   \
                             {                                    \
@@ -148,6 +156,15 @@ struct Err_param
                                     return;                     \
                                 }                               \
                             }while(0);
+
+#define WRITE_CHECK     do                                 \
+                        {                                  \
+                            if (write_res == 0)            \
+                            {                              \
+                                ERROR(WRITE_ERROR)         \
+                                return;                    \
+                            }                              \
+                        }while(0);
 
 #define CLOSE_CHECK           do                                \
                             {                                   \

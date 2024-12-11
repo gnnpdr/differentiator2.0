@@ -34,7 +34,7 @@ void choose_do_calc(Tree* the_tree, Err_param* error)
     else if (action == KENNEDY)
         printf("do you really want to know who killed kennedy??\nso, i ll tell you\nit was cuno. but cuno doesnt even care\n");
 
-	res_tree = write_math_expression(res_tree, &stk, error);
+	//res_tree = write_math_expression(res_tree, &stk, error);
 	graph_dump(res_tree, res_tree, error);
 
     tree_dtor(res_tree);

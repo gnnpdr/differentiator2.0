@@ -23,7 +23,7 @@ static Node* check_node_tg (Node* node, Err_param *const error, size_t *const ne
 static void compare_branches(Node *const node1, Node *const node2, bool *const is_equal);
 static bool compare_nodes (Node *const node1, Node *const node2);
 
-Node* write_math_expression(Node* root, Stack *const stk, Err_param *const error)
+Node* write_math_expression(char *const text, Node* root, Stack *const stk, Err_param *const error)
 {
     assert(root);
     assert(stk);
@@ -55,6 +55,8 @@ Node* write_math_expression(Node* root, Stack *const stk, Err_param *const error
     RETURN_PTR
 
     printf("THE STR %s\n", str);
+
+    latex_add(str, text, error);
 
     free(str);
 
